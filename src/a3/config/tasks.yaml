@@ -22,7 +22,7 @@ ui_development:
     ready to be embedded in the final HTML file.
   agent: ui_ux_designer
   enhanced_prompt: >
-    Provide clean, structured, and mobile-friendly HTML/CSS code for all UI elements. Ensure the UI integrates seamlessly
+    Provide clean, structured, and mobile-friendly (make sure this is there) HTML/CSS code for all UI elements. Ensure the UI integrates seamlessly
     with the Phaser game canvas. Define the HUD, main menu, settings, instructions screen, quest log, and inventory panels.
     Clearly specify which buttons trigger actions (e.g., the "Play" button starts the game; the "Instructions" button opens
     the instructions screen; on mobile, an on-screen D-pad and action buttons should be provided).
@@ -116,4 +116,4 @@ testing_and_quality_assurance:
   enhanced_prompt: >
     Provide clear and actionable debugging code or test cases to verify that all components of the final HTML file work as intended.
     Review the code for syntax, logic errors, and performance issues. Ensure that scene transitions, dialogue progression,
-    UI updates, and control inputs (arrow keys, on-screen D-pad, SPACE, I, and M) function properly, and include fixes or suggestions where necessary. Also make sure the play, menu, instructions and restart work.
+    UI updates, and control inputs (arrow keys, on-screen D-pad, SPACE, I, and M) function properly, and include fixes or suggestions where necessary. Also make sure the play, menu, instructions and restart work. Check for mobile controls.

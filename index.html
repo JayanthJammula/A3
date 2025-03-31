@@ -95,17 +95,17 @@
           font-family: 'Orbitron', sans-serif;
           box-shadow: 0 2px 10px rgba(0,0,0,0.2);
       }
+      /* Centered game container with fixed dimensions */
       #game-container {
-          position: relative;
-          width: 100%;
-          height: calc(100% - 100px);
+          width: 640px;
+          height: 640px;
           overflow: hidden;
           background-color: #0f3460;
           border: 2px solid #e94560;
           box-shadow: 0 0 20px rgba(233,69,96,0.5);
+          margin: auto;
       }
-      /* UI overlays for HUD, Quest log & Inventory (integrated from extra context) */
-      /* HUD, Quest Log, Inventory styles */
+      /* UI overlays for HUD, Quest log & Inventory */
       #hud-ui {
           position: absolute;
           top: 10px;
@@ -162,6 +162,7 @@
         bottom: 10px;
         left: 10px;
         z-index: 2;
+        /* Always reserve space for mobile controls; they will be shown if the user agent matches */
         display: none;
       }
       .dpad {
@@ -183,17 +184,19 @@
       #left { top: 30px; left: 0; }
       #down { bottom: 0; left: 30px; }
       #right { top: 30px; right: 0; }
+      /* Mobile Actions: Interact and Exit Dialogue buttons (only on mobile) */
       #mobileActions {
         position: absolute;
         bottom: 10px;
         right: 10px;
         z-index: 2;
+        display: none;
       }
       #mobileActions button {
         margin: 5px;
-        width: 60px;
-        height: 30px;
-        opacity: 0.7;
+        width: 80px;
+        height: 35px;
+        opacity: 0.9;
         font-size: 14px;
         border: none;
         background: #fff;
@@ -272,7 +275,7 @@
         <h3>How to play:</h3>
         <ul>
           <li>Use arrow keys or on-screen D-pad to move.</li>
-          <li>Press SPACE or on-screen Confirm/Interact to interact.</li>
+          <li>Press SPACE to interact.</li>
           <li>Access quest log and inventory via UI overlays.</li>
           <li>Press I for Instructions and M for Main Menu during gameplay.</li>
         </ul>
@@ -308,9 +311,10 @@
         <button id="right">→</button>
       </div>
     </div>
+    <!-- Mobile Action Buttons: Interact and Exit Dialogue (only on mobile) -->
     <div id="mobileActions">
-      <button id="confirm">Confirm</button>
-      <button id="interact">Interact</button>
+      <button id="mobile-interact">Interact</button>
+      <button id="mobile-exit-dialogue" style="display: none;">Exit Dialogue</button>
     </div>
     
     <!-- Audio (Background music and game sounds) -->
@@ -369,32 +373,75 @@
           }
         }
         
-        /* Phaser Scenes Integration */
-        
         // Global constants for tile size and map dimensions.
         const TILE_SIZE = 32;
         const MAP_WIDTH = 20;
         const MAP_HEIGHT = 20;
         
-        /* ---------------- Prologue Scene ---------------- */
+        /* ---------------- Prologue Scene with Narration ---------------- */
         class PrologueScene extends Phaser.Scene {
-          constructor() {
-            super({ key: 'PrologueScene' });
-          }
+          constructor() { super({ key: "PrologueScene" }); }
+          init() { this.skipNarration = window.narrationComplete ? true : false; }
           preload() {
-            // Preload assets if needed.
+            this.load.image("intro1", "Assets/1.png");
+            this.load.image("intro2", "Assets/2.png");
+            this.load.image("intro3", "Assets/3.png");
+            this.load.image("intro4", "Assets/4.png");
+            this.load.image("intro5", "Assets/5.png");
           }
           create() {
-            const introText = "Welcome to Resign and Reborn!\n\nIn a world of rebirth and mystery, you are the chosen one to restore ancient balance.\n\nPress SPACE to continue...";
-            this.add.text(320,320,introText, {
-              font: "20px Arial",
-              fill: "#ffffff",
-              align: "center",
-              wordWrap: { width: 600 }
-            }).setOrigin(0.5);
-            this.input.keyboard.on("keydown-SPACE", () => {
+            if (this.skipNarration) {
+              console.log("Skipping prologue, starting ExplorationScene");
               this.scene.start("ExplorationScene");
+              return;
+            }
+            this.introPages = [
+              { image: "intro1", text: "The office lights buzzed overhead as he stared blankly at his computer screen. Paperwork piled high beside him, and the endless drone of colleagues typing echoed in the background. It was just another night of overtime for him—a nameless face in a sea of cubicles, drifting between caffeine highs and the dull ache of routine. His eyes grew heavy, and before he realized it, sleep claimed him." },
+              { image: "intro2", text: "In his dream, a grand cathedral of swirling lights and graceful arches materialized around him. Luminescent ribbons danced across the marble floor, guiding his gaze to a brilliant figure at the far end of the hall. She stood in ethereal splendor, clad in flowing white and gold, her hair like moonlight crowned with delicate blossoms. Awe overcame him as she beckoned him forward, the radiance of her presence banishing every shadow." },
+              { image: "intro3", text: "Suddenly, a powerful surge of energy surrounded him. His office attire fluttered in an otherworldly breeze, and he felt weightless—like he stood on the threshold between two worlds. The goddess smiled, her eyes filled with warmth and mystery, and his heart pounded with an unfamiliar mix of fear and hope." },
+              { image: "intro4", text: `Goddess (soft, melodic voice): “Mortal one, you have slumbered through your life’s true calling for too long. I have watched your weary soul endure endless days of toil. Tonight, I extend my hand to awaken the dormant spark within you.”` },
+              { image: "intro4", text: `Protagonist (voice trembling): “W-Where am I? This can’t be real. I was just…in my office, trying to finish that last report…”` },
+              { image: "intro4", text: `Goddess (stepping closer): “This place is both a dream and a truth—an echo of what could be. You stand at a crossroads: remain in the hollow shell of routine or seize the destiny that awaits you beyond mortal understanding.”` },
+              { image: "intro4", text: `Protagonist (eyes widening): “Destiny? You mean…me? I’m just an overworked office drone. I can’t possibly be the hero you’re looking for.”` },
+              { image: "intro4", text: `Goddess (smiling gently): “Greatness often sleeps in the unlikeliest of hearts. I sense your spirit yearning for change. Will you answer my call?”` },
+              { image: "intro4", text: `Protagonist: “I—I don’t know what this all means. But if there’s a chance I can break free from the life I’ve been living…then I’ll listen. Tell me what I need to do.”` },
+              { image: "intro4", text: `Goddess: “Brave one, our realms are entwined. Darkness seeps into your world, sapping hope and ambition. You shall stand as a bridge for salvation. Take my hand, and I shall guide you to a new dawn.”` },
+              { image: "intro4", text: `Protagonist: “I’m ready…or at least, I’m willing to try.”` },
+              { image: "intro4", text: `Goddess: “Then let the first step be taken. A new journey begins, one that will test your resolve—and reveal the power within your soul.”` },
+              { image: "intro5", text: "As the goddess’s fingers touch his, a burst of light swallows the cathedral. The faint hum of fluorescent lights reemerges, and he jolts awake at his desk. Papers flutter to the floor. Heart pounding, he realizes that though he has returned to his mundane surroundings, something profound has changed. " },
+              { image: "intro5", text: "A promise echoes in his mind—a promise of purpose, adventure, and the awakening of a power he never dreamed he possessed. And so, under the harsh glow of office lamps, his extraordinary story begins." }
+            ];
+            this.currentPage = 0;
+            this.createPage();
+            // Use pointerup (instead of pointerdown) for touch devices
+            this.input.keyboard.on("keydown-SPACE", this.nextPage, this);
+            this.input.on("pointerup", this.nextPage, this);
+          }
+          createPage() {
+            if (this.pageContainer) { this.pageContainer.destroy(); }
+            this.pageContainer = this.add.container(0, 0);
+            let currentData = this.introPages[this.currentPage];
+            this.introImage = this.add.image(this.cameras.main.width/2, this.cameras.main.height/2, currentData.image);
+            this.introImage.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+            this.introImage.setOrigin(0.5, 0.5);
+            this.pageContainer.add(this.introImage);
+            let rect = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height - 150, this.cameras.main.width, 300, 0xffffff, 0.8);
+            rect.setOrigin(0.5, 0);
+            this.pageContainer.add(rect);
+            this.pageText = this.add.text(this.cameras.main.width * 0.05, this.cameras.main.height - 140, currentData.text, {
+              font: "18px Arial",
+              fill: "#000000",
+              wordWrap: { width: this.cameras.main.width * 0.9 }
             });
+            this.pageContainer.add(this.pageText);
+          }
+          nextPage() {
+            this.currentPage++;
+            if (this.currentPage >= this.introPages.length) {
+              window.narrationComplete = true;
+              console.log("Prologue finished, starting ExplorationScene...");
+              this.scene.start("ExplorationScene");
+            } else { this.createPage(); }
           }
         }
         
@@ -402,31 +449,52 @@
         class ExplorationScene extends Phaser.Scene {
           constructor() {
             super({ key: "ExplorationScene" });
-            // Inventory and quest arrays.
             this.inventory = [];
             this.activeQuests = [];
             this.dialogueActive = false;
           }
           preload() {
-            // Generate placeholder textures:
+            // Generate placeholder textures.
             this.textures.generate("player", { data: ["1111","1221","1221","1111"], pixelWidth: TILE_SIZE/4 });
+            
+            // Grass tile.
             let gfx = this.make.graphics({ add: false });
             gfx.fillStyle(0x00aa00,1);
             gfx.fillRect(0,0, TILE_SIZE, TILE_SIZE);
             gfx.generateTexture("grass", TILE_SIZE, TILE_SIZE);
             gfx.clear();
+            
+            // HighGrass tile.
             gfx.fillStyle(0x007700,1);
             gfx.fillRect(0,0, TILE_SIZE, TILE_SIZE);
             gfx.generateTexture("highGrass", TILE_SIZE, TILE_SIZE);
             gfx.clear();
+            
+            // Tree tile.
             gfx.fillStyle(0x228822,1);
             gfx.fillRect(0,0, TILE_SIZE, TILE_SIZE);
             gfx.generateTexture("tree", TILE_SIZE, TILE_SIZE);
             gfx.clear();
+            
+            // Fence tile.
             gfx.lineStyle(2, 0x654321,1);
             gfx.strokeRect(0,0, TILE_SIZE, TILE_SIZE);
             gfx.generateTexture("fence", TILE_SIZE, TILE_SIZE);
             gfx.destroy();
+            
+            // Generate a simple house texture.
+            let houseGfx = this.make.graphics({ add: false });
+            houseGfx.fillStyle(0x964B00, 1);
+            houseGfx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+            houseGfx.generateTexture("house", TILE_SIZE, TILE_SIZE);
+            houseGfx.destroy();
+            
+            // Generate a simple NPC texture.
+            let npcGfx = this.make.graphics({ add: false });
+            npcGfx.fillStyle(0x0000ff, 1);
+            npcGfx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+            npcGfx.generateTexture("npc", TILE_SIZE, TILE_SIZE);
+            npcGfx.destroy();
           }
           create() {
             // Create 2D map array with base tile "grass"
@@ -480,8 +548,56 @@
                 }
               }
             }
+            // Add houses in the town.
+            this.add.sprite(7 * TILE_SIZE, 7 * TILE_SIZE, "house").setOrigin(0);
+            this.add.sprite(7 * TILE_SIZE, 12 * TILE_SIZE, "house").setOrigin(0);
+            this.add.sprite(12 * TILE_SIZE, 7 * TILE_SIZE, "house").setOrigin(0);
+            this.add.sprite(12 * TILE_SIZE, 12 * TILE_SIZE, "house").setOrigin(0);
+            
+            // Add NPCs.
+            this.npcs = [];
+            // Old Mara at tile (7,13)
+            let oldMara = {
+              tileX: 7,
+              tileY: 13,
+              name: "Old Mara",
+              backstory: "An elderly villager who lost her family in a past disaster. Wise and caring but wary of outsiders.",
+              personality: "cautious, kind",
+              dialogue: [
+                {
+                  text: "Old Mara: Greetings, traveler. Will you help our village?",
+                  options: [
+                    { option: "Yes, of course!", morality: +1, next: ["Old Mara: Thank you! Our hope is renewed."] },
+                    { option: "No, I'm in no mood.", morality: -1, next: ["Old Mara: Very well... our plight continues."] }
+                  ]
+                },
+                "Old Mara: I have seen many storms pass, but this one feels different."
+              ]
+            };
+            oldMara.sprite = this.add.sprite(oldMara.tileX * TILE_SIZE, oldMara.tileY * TILE_SIZE, "npc").setOrigin(0);
+            this.npcs.push(oldMara);
+            // Young Tobias at tile (15,7)
+            let youngTobias = {
+              tileX: 15,
+              tileY: 7,
+              name: "Young Tobias",
+              backstory: "A spirited young villager who dreams of adventure. Optimistic and adventurous yet a bit naive.",
+              personality: "optimistic, adventurous",
+              dialogue: [
+                "Young Tobias: I see hope in your eyes.",
+                "Young Tobias: Remember, even the outcast can become legend.",
+                "Young Tobias: I wish I could join you on your journey, but my place is here."
+              ],
+              quests: [
+                { questId: 2, description: "Rescue a villager for Tobias." }
+              ],
+              relationship: "friendly"
+            };
+            youngTobias.sprite = this.add.sprite(youngTobias.tileX * TILE_SIZE, youngTobias.tileY * TILE_SIZE, "npc").setOrigin(0);
+            this.npcs.push(youngTobias);
+            
             // Create the player.
-            this.player = this.physics.add.sprite(10*TILE_SIZE,4*TILE_SIZE, "player");
+            this.player = this.physics.add.sprite(10*TILE_SIZE, 4*TILE_SIZE, "player");
             this.player.setOrigin(0);
             this.player.setCollideWorldBounds(true);
             this.player.gridX = 10;
@@ -500,10 +616,11 @@
             this.dialogueBox = document.getElementById("dialogueBox");
             this.dialogueText = document.getElementById("dialogueText");
             
-            // Mobile on-screen controls:
-            if(/Mobi|Android/i.test(navigator.userAgent)){
+            // Mobile on-screen controls: enable on mobile devices.
+            if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
               document.getElementById("mobileControls").style.display = "block";
               document.getElementById("mobileActions").style.display = "block";
+              // D-pad arrow buttons.
               document.getElementById("up").addEventListener("touchstart", ()=>{ this.mobileInput.up = true; });
               document.getElementById("up").addEventListener("touchend", ()=>{ this.mobileInput.up = false; });
               document.getElementById("down").addEventListener("touchstart", ()=>{ this.mobileInput.down = true; });
@@ -512,11 +629,28 @@
               document.getElementById("left").addEventListener("touchend", ()=>{ this.mobileInput.left = false; });
               document.getElementById("right").addEventListener("touchstart", ()=>{ this.mobileInput.right = true; });
               document.getElementById("right").addEventListener("touchend", ()=>{ this.mobileInput.right = false; });
-              document.getElementById("confirm").addEventListener("touchstart", ()=>{ this.handleInteraction(); });
-              document.getElementById("interact").addEventListener("touchstart", ()=>{ this.handleInteraction(); });
+              // "Interact" button.
+              document.getElementById("mobile-interact").addEventListener("touchstart", ()=> {
+                if(!this.dialogueActive) {
+                  this.handleInteraction();
+                }
+              });
+              // "Exit Dialogue" button.
+              document.getElementById("mobile-exit-dialogue").addEventListener("touchstart", ()=> {
+                if(this.dialogueActive){
+                  this.dialogueBox.style.display = "none";
+                  this.dialogueActive = false;
+                  this.currentNPC = null;
+                  this.currentDialogue = null;
+                  this.dialogueIndex = 0;
+                  document.getElementById("mobile-exit-dialogue").style.display = "none";
+                }
+              });
+            } else {
+              // For desktop, ensure mobile controls remain hidden.
+              document.getElementById("mobileControls").style.display = "none";
+              document.getElementById("mobileActions").style.display = "none";
             }
-            
-            // Update UI overlays (quest/inventory) if needed.
           }
           update() {
             if(this.dialogueActive) return;
@@ -564,54 +698,107 @@
             }
           }
           handleInteraction() {
-            // Check for interactions; for demo, simply show dialogue and update quest/inventory.
             if(this.dialogueActive) return;
-            this.startDialogue("You discovered an ancient relic on the ground!");
-            // Add item to inventory.
-            this.inventory.push("Ancient Relic");
-            document.getElementById("inventoryList").innerHTML = "";
-            this.inventory.forEach(item => {
-              let li = document.createElement("li");
-              li.textContent = item;
-              document.getElementById("inventoryList").appendChild(li);
-            });
-            // Add quest if none active.
-            if(this.activeQuests.length === 0){
-              this.activeQuests.push("Return the Ancient Relic to the Sage");
-              document.getElementById("questList").innerHTML = "";
-              this.activeQuests.forEach(q=>{
-                let li = document.createElement("li");
-                li.textContent = q;
-                document.getElementById("questList").appendChild(li);
-              });
+            // Check for nearby NPC interaction.
+            let interacted = false;
+            for(let npc of this.npcs) {
+              let dx = Math.abs(npc.tileX - this.player.gridX);
+              let dy = Math.abs(npc.tileY - this.player.gridY);
+              if(dx + dy <= 1) {
+                this.startNPCDialogue(npc);
+                interacted = true;
+                break;
+              }
             }
           }
+          // Simple dialogue for non-NPC interactions.
           startDialogue(text) {
             this.dialogueActive = true;
             this.dialogueText.innerHTML = text + "<br /><em>Press SPACE to continue...</em>";
             this.dialogueBox.style.display = "block";
-            this.input.keyboard.once("keydown-SPACE", ()=>{
+            this.input.keyboard.once("keydown-SPACE", () => {
               this.dialogueActive = false;
               this.dialogueBox.style.display = "none";
             });
           }
+          // Check for random encounters on highGrass.
           checkTileEvent(x, y) {
             let tile = this.mapData[y][x];
             if(tile==="highGrass" && !(x>=6 && x<=13 && y>=6 && y<=13)){
               if(Math.random() < 0.05){
                 console.log("Random encounter triggered!");
-                // Launch CardBattleScene for example.
                 this.scene.pause();
                 this.scene.launch("CardBattleScene", { returnScene:"ExplorationScene", playerX: x, playerY: y });
               }
             }
           }
+          // NPC Dialogue System:
+          startNPCDialogue(npc) {
+            this.currentNPC = npc;
+            this.currentDialogue = npc.dialogue;
+            this.dialogueIndex = 0;
+            this.dialogueActive = true;
+            // On mobile, show the "Exit Dialogue" button.
+            if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
+              document.getElementById("mobile-exit-dialogue").style.display = "block";
+            }
+            this.displayCurrentDialogue();
+          }
+          displayCurrentDialogue() {
+            let currentLine = this.currentDialogue[this.dialogueIndex];
+            // Add ESC listener for desktop to allow exiting dialogue.
+            this.input.keyboard.once("keydown-ESC", () => {
+              this.dialogueBox.style.display = "none";
+              this.dialogueActive = false;
+              this.currentNPC = null;
+              this.currentDialogue = null;
+              this.dialogueIndex = 0;
+              if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
+                document.getElementById("mobile-exit-dialogue").style.display = "none";
+              }
+            });
+            if(typeof currentLine === 'string') {
+              this.dialogueBox.style.display = "block";
+              this.dialogueText.innerHTML = currentLine + "<br/><em>Press SPACE to continue or ESC to exit.</em>";
+              this.input.keyboard.once("keydown-SPACE", () => {
+                this.dialogueIndex++;
+                if(this.dialogueIndex >= this.currentDialogue.length) {
+                  this.dialogueBox.style.display = "none";
+                  this.dialogueActive = false;
+                  this.currentNPC = null;
+                  this.currentDialogue = null;
+                  this.dialogueIndex = 0;
+                  if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
+                    document.getElementById("mobile-exit-dialogue").style.display = "none";
+                  }
+                } else {
+                  this.displayCurrentDialogue();
+                }
+              });
+            } else if(typeof currentLine === 'object' && currentLine.text) {
+              let text = currentLine.text + "<br/>";
+              for(let i = 0; i < currentLine.options.length; i++){
+                text += (i+1) + ". " + currentLine.options[i].option + "<br/>";
+              }
+              text += "<em>Press the number key corresponding to your choice or ESC to exit dialogue.</em>";
+              this.dialogueBox.style.display = "block";
+              this.dialogueText.innerHTML = text;
+              this.input.keyboard.once("keydown", (event) => {
+                let choice = parseInt(event.key);
+                if(choice >= 1 && choice <= currentLine.options.length) {
+                  this.currentDialogue = currentLine.options[choice - 1].next;
+                  this.dialogueIndex = 0;
+                  this.displayCurrentDialogue();
+                } else {
+                  this.displayCurrentDialogue();
+                }
+              });
+            }
+          }
           toggleInstructions() { 
-            // For demo: simply show dialogue with instructions.
             this.startDialogue("Instructions:\n- Use arrow keys or D-pad to move.\n- Press SPACE to interact.");
           }
           toggleMainMenu() {
-            // For demo: return to start menu.
             ui.mainMenu();
           }
         }
@@ -626,9 +813,7 @@
             this.playerReturnX = data.playerX;
             this.playerReturnY = data.playerY;
           }
-          preload() {
-            // Preload battle assets if needed.
-          }
+          preload() {}
           create() {
             this.add.rectangle(320,320,640,640,0x000088);
             this.playerHP = 100;
@@ -693,7 +878,7 @@
           }
           endBattle(){
             this.battleInProgress = false;
-            this.time.delayedCall(2000, ()=>{
+            this.time.delayedCall(2000, ()=> {
               this.scene.stop();
               this.scene.resume(this.returnScene);
               let expl = this.scene.get(this.returnScene);
@@ -713,7 +898,7 @@
           create(){
             this.add.rectangle(320,320,640,640,0x333333);
             this.add.text(320,320,"Skill Tree - Coming Soon",{ font:"24px Arial", fill:"#fff" }).setOrigin(0.5);
-            this.input.keyboard.on("keydown-SPACE", ()=>{
+            this.input.keyboard.on("keydown-SPACE", ()=> {
               this.scene.stop();
               this.scene.resume("ExplorationScene");
             });
@@ -780,10 +965,10 @@
             gameMenuButton.addEventListener("click", ()=> {
               this.ui.mainMenu();
             });
-            gameRestartButton.addEventListener("click", ()=>{
+            gameRestartButton.addEventListener("click", ()=> {
               this.ui.startGame();
             });
-            gameInstructionsButton.addEventListener("click", ()=>{
+            gameInstructionsButton.addEventListener("click", ()=> {
               this.ui.instructions();
             });
           }
@@ -824,7 +1009,7 @@
             } else {
               console.error("Test 3 Failed: ExplorationScene not found for boundary test.");
             }
-            if(/Mobi|Android/i.test(navigator.userAgent)){
+            if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
               if(document.getElementById("mobileControls").style.display==="block" && document.getElementById("mobileActions").style.display==="block"){
                 debugLog("Test 4 Passed: Mobile controls visible.");
               } else {
