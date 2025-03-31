@@ -138,16 +138,4 @@ The game includes debug logs and testing routines integrated into the code.
 
 ---
 
-## Credits
-
-Developed with contributions from multiple specialized agents:
-- **Main Coder**
-- **UI/UX Designer**
-- **Narrative Designer**
-- **Map Designer**
-- **NPC AI Designer**
-- **Inventory & Quest Designer**
-- **Tester/Debugger**
-- **Template Integrator**
-- **Project Coordinator**
 
