@@ -1,7 +1,9 @@
-Resign and Reborn
+**Resign and Reborn
+**
 Resign and Reborn is an HTML5 tile-based RPG game built using Phaser.js (v3.55.2). The game is packaged as a single, self-contained HTML file with embedded CSS and JavaScript. It is designed to run on both desktop and mobile browsers, featuring smooth scene transitions, interactive dialogue, and responsive UI elements.
 
-Overview
+**Overview
+**
 The game is set on a 20x20 tile-based map. It features:
 
 A central town enclosed by a fence, containing four houses and two interactive NPCs.
@@ -23,8 +25,8 @@ A fully integrated UI including a main menu, settings, instructions, HUD, quest 
 Features
 Tile-Based Map: A dynamic 20x20 grid with a central town and forest areas.
 
-Player Controls:
-
+**Player Controls:
+**
 Desktop: Move using arrow keys; interact using SPACE; open instructions with I and the main menu with M.
 
 Mobile/Tablet: On-screen D-pad in the bottom-left and action buttons in the bottom-right for interactions, inventory toggling, and exiting NPC dialogue.
@@ -39,11 +41,11 @@ Scene Transitions: Smooth transitions between the prologue, exploration, battle,
 
 Integrated Crew System: Developed with a modular crew approach where each agent (e.g., main coder, UI/UX designer, narrative designer, etc.) contributed to different aspects of the game.
 
-Run the Game:
+**Run the Game:**
 
 Simply open the index.html file in any modern web browser (Chrome, Firefox, Safari, or Edge). No additional server setup is needed.
 
-Mobile Access:
+**Mobile Access:**
 
 The game is fully responsive. When accessed on mobile or tablet devices, on-screen controls (a D-pad and action buttons) will automatically appear in the bottom corners.
 
