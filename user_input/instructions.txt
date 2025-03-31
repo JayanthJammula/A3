@@ -1,0 +1,43 @@
+Game Instructions:
+
+Overview:
+Create a 2D RPG game set in a magical medieval fantasy world. The protagonist is an exhausted modern-day office worker who dies from overwork at his desk. After death, he encounters a reincarnation goddess who grants him a fresh start by sending him to a magical world filled with monsters, guilds, and adventures.
+
+Storyline:
+- Opening Scene: Protagonist working tirelessly, collapsing and dying at his office desk.
+- Introduction: Protagonist awakens in an ethereal realm, meets the reincarnation goddess, and learns he will be reincarnated.
+- Rebirth: Protagonist arrives in a vibrant medieval fantasy town bustling with guilds, shops, adventurers, and mystical creatures.
+- Main Goal: Protagonist joins an adventurers' guild, starts exploring dungeons, taking quests, and defeating monsters to grow stronger.
+- Major Plot Points:
+  - Discovering unique magical abilities granted by the goddess.
+  - Forming friendships with guild members and townsfolk.
+  - Uncovering hidden dangers threatening the magical world's stability.
+  - Gradually rising in rank within the guild through quests and heroic deeds.
+- Endgame Objective: Face a major threat or powerful monster threatening the magical realm, fulfilling his destiny to protect this new world.
+
+Gameplay Mechanics:
+- Scene Management: Modular scenes including an office scene, reincarnation scene, main town hub, guild hall, dungeon exploration, and various quest locations.
+- Core Mechanics: Movement, dialogue interaction, combat system (real-time or turn-based), quest log management, inventory management, and character progression (levels, skills, and magic).
+- Guild System: Allow players to accept quests, interact with guild NPCs, and receive rewards upon quest completion.
+
+Visual Style:
+- Bright, colorful pixel-art aesthetic.
+- Medieval-fantasy setting with magical themes.
+- Clearly distinguishable environments (town, dungeons, guild hall, wilderness).
+
+UI Components:
+- Main menu (Start, Options, Credits)
+- Dialogue boxes and quest logs.
+- Heads-up display (HUD) clearly showing player health, mana, quest objectives, and inventory status.
+- Mobile-friendly, responsive layout.
+
+Testing Requirements:
+- Test all gameplay elements rigorously (scene transitions, dialogues, quests, combat mechanics, inventory, guild interactions).
+- Ensure smooth performance across browsers and responsive layout compatibility for desktop and mobile.
+- Provide clear documentation of bugs or performance issues with suggested fixes.
+
+Deployment:
+- Integrate the developed game fully into the provided HTML template for seamless deployment as an HTML5 browser game.
+
+Final Product:
+Deliver a polished, fully functional HTML5-based 2D RPG titled "Resign and Reborn," closely adhering to the narrative and gameplay details outlined above.

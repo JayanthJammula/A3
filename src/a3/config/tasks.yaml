@@ -1,0 +1,119 @@
+game_engine_development:
+  description: >
+    Develop the core game engine using Phaser.js. The code must implement player movement,
+    collision detection, physics, and interactive gameplay (e.g., item collection, triggering quests)
+    within a fully integrated HTML file. You will create the game using these instructions. {game}
+  expected_output: >
+    A complete JavaScript code snippet embedded in an HTML file that uses Phaser.js (loaded via CDN)
+    to create the game engine with smooth player controls, physics, and interactions.
+  agent: main_coder
+  enhanced_prompt: >
+    Follow the game design instructions to produce modular, maintainable JavaScript code that integrates
+    with an HTML file. Ensure Phaser.js is loaded from a CDN and that player movement is tile-based,
+    with collision detection and interactive gameplay implemented. The code must also include clear scene transitions,
+    such as switching from the ExplorationScene to the CardBattleScene and returning afterward.
+
+ui_development:
+  description: >
+    Design and code all UI components in HTML and CSS. This includes the HUD, menus (start, settings, instructions),
+    dialogue boxes, quest log, and inventory list.
+  expected_output: >
+    A snippet of HTML and CSS code that defines responsive, mobile-friendly UI elements with proper styling and layout,
+    ready to be embedded in the final HTML file.
+  agent: ui_ux_designer
+  enhanced_prompt: >
+    Provide clean, structured, and mobile-friendly HTML/CSS code for all UI elements. Ensure the UI integrates seamlessly
+    with the Phaser game canvas. Define the HUD, main menu, settings, instructions screen, quest log, and inventory panels.
+    Clearly specify which buttons trigger actions (e.g., the "Play" button starts the game; the "Instructions" button opens
+    the instructions screen; on mobile, an on-screen D-pad and action buttons should be provided).
+
+narrative_design:
+  description: >
+    Create engaging narrative content and dialogue for the game. This includes quest narratives, NPC dialogue,
+    and interactive prompts that guide the player through the story.
+  expected_output: >
+    A code snippet (HTML or JavaScript) that embeds narrative content and interactive dialogue options.
+  agent: narrative_designer
+  enhanced_prompt: >
+    Craft compelling narrative text and dialogue options that trigger in-game events. Clearly indicate how dialogue advances:
+    when the player presses SPACE (or the on-screen "Confirm" button on mobile) the dialogue should progress, and if branching
+    options exist, they must be numbered so that pressing a number key or tapping the option selects it. Also, include instructions
+    for transitioning from dialogue to gameplay scenes.
+
+map_design:
+  description: >
+    Design and implement a tile-based map for the game environment using Phaser.js. The map should be 20x20 tiles, including
+    a central town enclosed by a fence and a surrounding forest with obstacles.
+  expected_output: >
+    A JavaScript code snippet that creates a tile-based map using Phaser.js, integrating varied terrain (town, forest with grass,
+    highGrass, and tree tiles) and interactive areas.
+  agent: map_designer
+  enhanced_prompt: >
+    Develop modular code to generate a 20x20 tile-based map with these specifications:
+      - Town Area: Centrally located (e.g., tiles (6,6) to (13,13)) enclosed by a fence (non-walkable). Inside, place 4 houses
+        (e.g., at positions (7,7), (7,12), (12,7), (12,12)) and 2 NPCs (e.g., at (8,10) and (11,10)) that trigger dialogue.
+      - Forest Area: Outside the town, use "grass" tiles for standard ground, "highGrass" tiles (visually distinct, e.g., darker green)
+        which have a 5% chance to trigger a random encounter, and "tree" tiles that act as obstacles.
+    Ensure the map integrates with player controls and collision detection, and that scene transitions occur as needed.
+
+npc_ai_development:
+  description: >
+    Develop AI behaviors for both friendly NPCs and enemy characters. This includes random movement for NPCs and logic for
+    enemy tracking or attacking when encounters occur.
+  expected_output: >
+    A JavaScript code snippet that implements basic NPC and enemy AI using Phaser.js, with smooth movement and interactive responses.
+  agent: npc_ai_designer
+  enhanced_prompt: >
+    Create robust and responsive AI code for NPCs and enemies. NPCs should move randomly and trigger dialogue when interacted with.
+    Enemies should be programmed to track or attack the player when in range. Ensure that AI behaviors trigger appropriate scene transitions,
+    such as moving into a dialogue mode or starting a card battle encounter.
+
+inventory_and_quest_system:
+  description: >
+    Design and implement systems for managing the player's inventory and active quests. The code should include UI components that display
+    the quest log and inventory list, and support adding, updating, and tracking items and quests.
+  expected_output: >
+    A code snippet (HTML and JavaScript) that creates an interactive quest log and inventory system, integrated with the overall game UI.
+  agent: inventory_quest_designer
+  enhanced_prompt: >
+    Build an intuitive and interactive quest and inventory system that integrates with the game’s UI. Ensure that when the player collects
+    an item or accepts a quest, the corresponding UI element (e.g., the inventory panel or quest log) updates accordingly. Also, specify how
+    these interactions might trigger transitions (e.g., starting dialogue or a battle).
+
+game_deployment:
+  description: >
+    Make sure the game is in the center of the screen. Integrate all developed game components (PrologueScene, ExplorationScene, CardBattleScene, SkillTreeScene,
+    quest system, inventory system, etc.) into one fully deployable HTML5 file. The file must include all UI elements,
+    scene transitions, embedded CSS, and JavaScript using Phaser.js. Use this template {game_template} and strictly adhere to it. 
+  expected_output: >
+    Your Final Answer must be the complete HTML code (including embedded CSS and JavaScript) that replicates the structure
+    of the provided reference code, with all scenes (and clear transitions between them), UI elements, and game systems fully integrated.
+  agent: template_integrator
+  output_file: index.html
+  enhanced_prompt: >
+  
+    Follow the reference code structure exactly. Make sure the game is in the center of the screen.  Your final integrated HTML file must include:
+      - PrologueScene: A multi-page narrative that introduces the game and transitions to the main exploration.
+      - ExplorationScene: A 20x20 tile-based map featuring:
+          * A central town (enclosed by a fence) containing 4 houses and 2 NPCs.
+          * A surrounding forest with "grass" tiles, "highGrass" tiles (which trigger a 5% random encounter), and "tree" tiles.
+      - CardBattleScene: A Pokémon-style, turn-based card battle system that activates when a random encounter is triggered,
+        and which transitions back to the ExplorationScene upon completion.
+      - SkillTreeScene (if applicable): An interface for character upgrades.
+      - Complete UI elements: A main menu, settings screen, instructions screen, HUD, quest log, and inventory panel.
+      - Explicit scene transitions: Ensure that the game changes from one scene to another (e.g., from dialogue to battle, from battle back to exploration) as specified.
+      - **Play/Start Button Functionality:** Ensure that the "Play" button on the main menu is fully functional by attaching an event listener
+        after the DOM loads that hides the main menu and initiates the first game scene.
+    Load Phaser 3.55.2 from a CDN. Ensure that the final HTML file is fully self-contained, deployable, and that all interactive elements work correctly.
+
+testing_and_quality_assurance:
+  description: >
+    Perform comprehensive testing and debugging to ensure that the final integrated game code is stable, error-free,
+    and meets all design requirements. This task should be executed after the game deployment integration.
+  expected_output: >
+    A JavaScript snippet containing debugging code, error handling routines, or test cases that verify the functionality of the final game.
+  agent: tester_debugger
+  enhanced_prompt: >
+    Provide clear and actionable debugging code or test cases to verify that all components of the final HTML file work as intended.
+    Review the code for syntax, logic errors, and performance issues. Ensure that scene transitions, dialogue progression,
+    UI updates, and control inputs (arrow keys, on-screen D-pad, SPACE, I, and M) function properly, and include fixes or suggestions where necessary. Also make sure the play, menu, instructions and restart work.

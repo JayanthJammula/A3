@@ -1,0 +1,112 @@
+example4_rpg: >
+  """
+  Game Instructions:
+
+  Overview:
+  Build an HTML5 game titled "Resign and Reborn" using Phaser.js (v3.55.2). The game must be developed as a single,
+  integrated HTML file with embedded CSS and JavaScript, and must run on both desktop and mobile browsers.
+  The game world is a 20x20 tile-based map consisting of a central town and a surrounding forest. Within the forest,
+  there are two types of ground tiles: standard "grass" and "highGrass". When the player steps on a "highGrass" tile (outside
+  the town), there is a 5% chance to trigger a Pokémon-style, turn-based card battle sequence. The town is enclosed by a
+  visible fence and contains exactly 4 houses and 2 NPCs that the player can interact with via dialogue.
+  **Important:** The character must be able to freely exit the town and explore the forest area.
+
+  Map and World Design:
+  - The map is divided into a 20x20 grid of tiles.
+  - Town Area:
+      * The town occupies a central region of the map (for example, tiles from (6,6) to (13,13)) and is fully enclosed by a fence
+        (non-walkable tiles) that clearly demarcates its boundaries.
+      * Place exactly 4 houses at fixed coordinates (e.g., (7,7), (7,12), (12,7), (12,12)). If the house sprite is missing,
+        insert a placeholder comment (e.g., <!-- TODO: Add house sprite -->).
+      * Place 2 NPCs at predetermined positions in the town (for example, (8,10) and (11,10)) that initiate dialogue when interacted with.
+  - Forest Area:
+      * The area surrounding the town is a forest composed of:
+          - "grass" tiles: Standard green tiles representing walkable terrain.
+          - "highGrass" tiles: Visually distinct (darker or taller) tiles indicating areas where a random encounter might occur.
+            Each time the player enters a highGrass tile outside the town, perform a 5% chance check to trigger a random encounter.
+            If the highGrass sprite is missing, include a placeholder comment (e.g., <!-- TODO: Add highGrass sprite -->).
+          - "tree" tiles: Tiles that represent obstacles. If a tree sprite is missing, include a placeholder (e.g., <!-- TODO: Add tree sprite -->).
+
+  Gameplay Mechanics:
+  1. Player Movement & Controls:
+      - The player moves one tile at a time (for instance, each tile is 32x32 pixels).
+      - Desktop Controls:
+          * Arrow Keys: Move the player one tile in the corresponding direction.
+          * SPACE: Use this key to interact with NPCs, houses, or objects, and to advance dialogue.
+          * I: Open the Instructions screen.
+          * M: Open the Main Menu.
+      - Mobile Controls:
+          * On-screen D-pad (positioned at the bottom-left) for directional movement.
+          * On-screen action buttons (positioned at the bottom-right) labeled "Confirm" (acts as SPACE) and "Interact" (acts as the interact key).
+      - The camera must smoothly follow the player as they move and should be zoomed in (displaying fewer tiles at once) to focus on gameplay details.
+      - **Note:** The character must be able to exit the town and roam freely throughout the forest.
+  
+  2. Dialogue System:
+      - When the player is adjacent to an NPC or certain interactive objects (e.g., houses), pressing SPACE (or the on-screen "Interact" button)
+        should open a dialogue box at the bottom center of the screen.
+      - The dialogue box must display narrative text and offer branching dialogue options, with each option numbered.
+      - The dialogue advances when the player presses SPACE (or taps "Confirm"). When branching options are present,
+        the player selects an option by pressing the corresponding number key (or tapping the option on mobile).
+      - Player movement must be paused during dialogue until the conversation is complete.
+
+  3. Random Encounters & Card Battle Sequence:
+      - In the forest, when the player steps onto a "highGrass" tile (outside the town), perform a 5% probability check.
+      - If an encounter is triggered, immediately transition from the ExplorationScene to a CardBattleScene.
+      - The CardBattleScene must implement a simple, turn-based card battle system:
+          * Display both the player’s and enemy’s health bars.
+          * Provide options for the player to attack, defend, or use an item.
+          * Use animated effects to indicate attacks.
+      - After the battle concludes (win or loss), transition back to the ExplorationScene at an appropriate location.
+
+  4. Scene Management and Transitions:
+      - The game must be divided into multiple scenes:
+          * PrologueScene: A narrative-driven introduction with multi-page dialogue that explains the backstory and then transitions to the main game.
+          * ExplorationScene: The main scene where the player explores the 20x20 map, interacts with NPCs/houses, and triggers random encounters.
+          * CardBattleScene: A turn-based card battle system triggered by random encounters on highGrass tiles.
+          * (Optional) SkillTreeScene: An interface for leveling up and upgrading the character.
+      - Scene transitions must be explicit and smooth:
+          * For example, after the PrologueScene ends, transition to the ExplorationScene.
+          * When a random encounter occurs, pause the ExplorationScene and launch the CardBattleScene, then return to the ExplorationScene after the battle.
+
+  5. User Interface (UI):
+      - Main Menu: A start screen with buttons for Play, Settings, and Instructions.
+      - HUD: Display player status (e.g., HP, XP, Level) at the top-left corner.
+      - Quest Log: A panel (e.g., at the top-right) that shows active quests.
+      - Inventory Panel: A bottom panel that displays collected items.
+      - All UI elements must be styled using embedded CSS to match the game’s aesthetic and be fully responsive.
+      - On-screen instructions (or an Instructions menu) must state:
+          * Use arrow keys (or the on-screen D-pad) for movement.
+          * Press SPACE to interact/advance dialogue.
+          * Press I to view Instructions.
+          * Press M to open the Main Menu.
+  
+  6. Asset Placeholders:
+      - For any missing sprites or audio assets (e.g., for the player, houses, NPCs, highGrass, trees), include clear placeholder comments such as:
+        <!-- TODO: Add sprite for player --> or <!-- TODO: Add background music file -->
+
+  7. Game Template Adherence:
+      - The final game code must follow the provided game template structure:
+          * The HTML file must include a head section with meta tags (for responsiveness) and a title.
+          * Embedded CSS should define global and UI-specific styles.
+          * Embedded JavaScript must load Phaser.js from a CDN (e.g., https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js) and define all required scenes.
+          * Scene transitions must be clearly defined, such as switching from PrologueScene to ExplorationScene, and from ExplorationScene to CardBattleScene (when a random encounter occurs) and back.
+          * UI elements (main menu, settings, instructions, HUD, quest log, inventory) must be fully integrated and functional.
+
+  Integration and Deployment:
+  - Load Phaser.js (v3.55.2) from a CDN.
+  - Embed all HTML, CSS, and JavaScript code into one complete HTML file.
+  - The final output must be fully deployable, with all controls, UI, and scene transitions functioning as specified.
+
+  Final Output:
+  Your final answer must be the complete HTML code (including embedded CSS and JavaScript) that builds the game exactly as described above.
+  The code must implement:
+      - A 20x20 tile-based map with a central town (enclosed by a fence, with 4 houses, 1 opening (to the forest) and 2 NPCs) and a surrounding forest
+        with "grass," "highGrass" (with a 5% random encounter chance), and "tree" tiles.
+      - Player movement using arrow keys on desktop and an on-screen D-pad on mobile, along with SPACE for interactions,
+        I for instructions, and M for the main menu.
+      - A dialogue system that advances with SPACE (or the on-screen "Confirm" button) and allows branching dialogue via numbered options.
+      - Scene transitions that switch clearly from PrologueScene to ExplorationScene, from ExplorationScene to CardBattleScene when an encounter occurs,
+        and back after the battle.
+      - Fully integrated UI elements (HUD, quest log, inventory, main menu, settings, instructions) styled with embedded CSS.
+      - Adherence to the provided game template structure.
+  """
