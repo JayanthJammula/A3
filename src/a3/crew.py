@@ -63,7 +63,7 @@ class GameBuilderCrew:
     def freesound(self) -> FreesoundTool:
          # Ensure FreesoundTool uses the latest corrected __init__
          # Remember to set FREESOUND_API_KEY environment variable
-         return FreesoundTool(api_key="QtjHJ9v7tenee5M5XKPWYluYqeCemLR0ZOtbv6W3", output_dir="sounds")
+         return FreesoundTool(api_key="", output_dir="sounds")
 
     # --- Agent Definitions (Ensure llm=llm is passed to ALL agents) ---
     @agent
