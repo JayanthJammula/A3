@@ -1,0 +1,44 @@
+# Detailed image-generation prompts (Ensure these are used by the image_assets_generator task)
+intro_images: 
+  image_instructions>
+    intro1: Desolate Office Night photorealistic, dimly lit office scene at night, cinematic lighting.
+    Focus on a single lone cubicle under harsh fluorescent lights casting long shadows.
+    A cluttered desk with overflowing papers, a stained coffee mug, keyboard and monitor.
+    FEATURE: A tired office worker (male, 30s, dark disheveled hair, white shirt, loosened tie) slumped defeatedly at his computer, face illuminated by the screen's glow.
+    ATMOSPHERE: Despair, exhaustion, corporate grind, sterile environment.
+    STYLE: Moody cool blue and grey tones, slight vignette, shallow depth of field focusing on the worker, high detail.
+  intro2: > # Prompt for a second conceptual image (e.g., ethereal transition)
+    # intro2: Ethereal Cathedral Encounter
+    fantasy illustration, concept art style. Interior of a vast, impossibly large cathedral with polished marble floors reflecting soaring gothic columns that disappear into shadow.
+    Volumetric light rays pierce the high windows, illuminating swirling ribbons of golden light guiding the viewer towards a luminous figure robed in white and gold standing at a distant altar.
+    ATMOSPHERE: Ethereal, dreamlike, awe-inspiring, mysterious, sacred.
+    STYLE: Soft focus on background architecture, sharp focus on the light ribbons and figure, warm gold light contrasting cool marble tones, high detail, masterpiece quality.
+  intro3: > # Prompt for a third conceptual image (e.g., energy surge)
+    # intro3: Energetic Transition
+    dynamic digital painting style. Depict the office worker from intro1 caught in an otherworldly surge of energy.
+    His shirt and tie billow as if caught in a strong wind. Streams of incandescent white and shimmering gold energy particles swirl intensely around him, lifting him slightly off the ground.
+    BACKGROUND: A surreal blend, half fading office cubicles and half echoing cathedral arches, indicating a transition between worlds.
+    ATMOSPHERE: Energetic, chaotic, weightless, transformative, powerful.
+    STYLE: Motion blur on energy trails, dramatic contrast lighting, high detail, centered composition on the worker.
+  intro4: > # Prompt for Exploration Scene Background / images/image_1.png (or conceptual)
+    # intro4: Divine Dialogue
+    cinematic fantasy art style. Close-up shot focusing on the interaction.
+    The radiant Goddess figure, bathed in soft backlight creating a halo effect, wears flowing white-gold robes detailed with intricate embroidery, her hair like spun moonlight, crowned with subtle glowing blossoms, serene expression.
+    Facing her, the protagonist (office worker) gazes up, eyes wide with astonishment and awe, his mundane office attire appearing incongruous and fluttering slightly.
+    BACKGROUND: Softly blurred cathedral interior with bokeh effects.
+    ATMOSPHERE: Serene, wondrous, divine encounter, pivotal moment.
+    STYLE: Warm, soft lighting, detailed textures on robes and jewelry, sharp focus on faces and expressions, high detail, masterpiece.
+    # Consider this prompt for explorationBG if intro4 is used for story:
+    # Exploration Background: Stylized top-down view transition
+    # digital painting, vibrant fantasy style. A swirling vortex of energy blending realistic office cubicle elements (computer monitors, chairs, papers - muted greys/blues) with lush, stylized fantasy forest elements (glowing oversized mushrooms, ancient trees with twisting roots, sparkling streams - vibrant greens/purples/golds). The blend should feel like two worlds colliding or merging in a dynamic, visually interesting way suitable as a static background for a top-down exploration game scene. Focus on color contrast and energy flow. High detail.
+  intro5: > # Prompt for Card Battle Background / images/image_2.png (or conceptual)
+    # intro5: Awakened Reality
+    photorealistic style with subtle fantasy elements. The office worker jolts awake at his messy desk (same as intro1), papers scattered on the floor around his chair as if disturbed suddenly.
+    Standard fluorescent office lights overhead, blurred cubicles in the background.
+    SUBTLE HINT: A faint, residual golden glow seems to cling to the edges of the scene or the worker himself, quickly fading.
+    EXPRESSION: Focus on the worker's face showing a mix of bewilderment, lingering wonder, and newfound determination.
+    ATMOSPHERE: Abrupt return to mundane reality, lingering magic, confusion mixed with resolve.
+    STYLE: Standard office lighting, sharp focus on the worker and desk, high detail, slightly desaturated colors compared to previous scenes.
+    # Consider this prompt for cardbattleBG if intro5 is used for story:
+    # Card Battle Background: Abstract Energy Arena
+    # abstract digital art, vibrant neon colors. A dynamic background suggesting an energetic battle arena. Streaks of glowing light (electric blue, fiery orange, emerald green) clash and intersect against a dark, nebula-like backdrop (deep purples and blacks with stars). Subtle geometric patterns or grid lines hint at a defined space. Focus on energy, motion, and contrast. Not representational, purely atmospheric for a card battle. High detail, particle effects.

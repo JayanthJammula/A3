@@ -1,1036 +1,559 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport" />
-    <title>Resign and Reborn</title>
-    <style>
-      /* Base CSS from provided template */
-      body, html {
-          margin: 0;
-          padding: 0;
-          height: 100%;
-          font-family: 'Orbitron', sans-serif;
-          background-color: #1a1a2e;
-          color: #ffffff;
-      }
-      .screen {
-          display: none;
-          height: 100%;
-          width: 100%;
-          position: absolute;
-          top: 0;
-          left: 0;
-          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      }
-      .screen.active {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-      }
-      .container {
-          text-align: center;
-          max-width: 600px;
-          width: 90%;
-      }
-      button {
-          background: linear-gradient(135deg, #283c86 0%, #45a247 100%);
-          border: 2px solid #fff;
-          border-radius: 8px;
-          color: #fff;
-          font-family: 'Orbitron', sans-serif;
-          font-size: 18px;
-          text-transform: uppercase;
-          text-align: center;
-          text-shadow: 0 0 5px rgba(0,0,0,0.5);
-          box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-          padding: 12px 30px;
-          margin: 20px auto 0;
-          display: block;
-          width: 215.15px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-      }
-      button:hover {
-          background: linear-gradient(135deg, #45a247 0%, #283c86 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      }
-      #game-title {
-          font-size: 2.5em;
-          margin-bottom: 30px;
-          text-transform: uppercase;
-          text-shadow: 0 0 10px rgba(255,255,255,0.5);
-          color: #e94560;
-      }
-      #game-controls {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          background-color: rgba(26,26,46,0.8);
-          padding: 10px 0;
-          z-index: 101;
-          display: none;
-          text-align: center;
-      }
-      #game-controls button {
-          display: inline-block;
-          width: auto;
-          padding: 8px 15px;
-          margin: 0 5px;
-          font-size: 14px;
-      }
-      #hud {
-          position: fixed;
-          top: 50px;
-          left: 0;
-          width: 100%;
-          background-color: rgba(255,255,255,0.9);
-          color: #1a1a2e;
-          padding: 10px;
-          z-index: 100;
-          display: none;
-          font-family: 'Orbitron', sans-serif;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      }
-      /* Centered game container with fixed dimensions */
-      #game-container {
-          width: 640px;
-          height: 640px;
-          overflow: hidden;
-          background-color: #0f3460;
-          border: 2px solid #e94560;
-          box-shadow: 0 0 20px rgba(233,69,96,0.5);
-          margin: auto;
-      }
-      /* UI overlays for HUD, Quest log & Inventory */
-      #hud-ui {
-          position: absolute;
-          top: 10px;
-          left: 10px;
-          z-index: 200;
-          background: rgba(0,0,0,0.8);
-          border: 2px solid #fff;
-          border-radius: 8px;
-          padding: 10px;
-          font-size: 16px;
-      }
-      #questLog-ui {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          z-index: 200;
-          background: rgba(0,0,0,0.8);
-          border: 2px solid #fff;
-          border-radius: 8px;
-          padding: 10px;
-          font-size: 16px;
-          width: 220px;
-      }
-      #inventory-ui {
-          position: absolute;
-          bottom: 10px;
-          left: 10px;
-          z-index: 200;
-          background: rgba(0,0,0,0.8);
-          border: 2px solid #fff;
-          border-radius: 8px;
-          padding: 10px;
-          font-size: 16px;
-          width: 250px;
-      }
-      /* Dialogue Box */
-      #dialogueBox {
-          position: absolute;
-          bottom: 10%;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 80%;
-          text-align: center;
-          z-index: 300;
-          padding: 15px;
-          background: rgba(0,0,0,0.8);
-          border: 2px solid #fff;
-          border-radius: 8px;
-          display: none;
-      }
-      /* Mobile Controls */
-      #mobileControls {
-        position: absolute;
-        bottom: 10px;
-        left: 10px;
-        z-index: 2;
-        /* Always reserve space for mobile controls; they will be shown if the user agent matches */
-        display: none;
-      }
-      .dpad {
-        width: 90px;
-        height: 90px;
-        position: relative;
-      }
-      .dpad button {
-        position: absolute;
-        width: 30px;
-        height: 30px;
-        opacity: 0.7;
-        font-size: 18px;
-        border: none;
-        background: #fff;
-        border-radius: 4px;
-      }
-      #up { top: 0; left: 30px; }
-      #left { top: 30px; left: 0; }
-      #down { bottom: 0; left: 30px; }
-      #right { top: 30px; right: 0; }
-      /* Mobile Actions: Interact and Exit Dialogue buttons (only on mobile) */
-      #mobileActions {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        z-index: 2;
-        display: none;
-      }
-      #mobileActions button {
-        margin: 5px;
-        width: 80px;
-        height: 35px;
-        opacity: 0.9;
-        font-size: 14px;
-        border: none;
-        background: #fff;
-        border-radius: 4px;
-      }
-      @media (max-width: 600px) {
-          #game-title {
-              font-size: 2em;
-          }
-          button {
-              width: 80%;
-              font-size: 16px;
-          }
-          #game-controls button {
-              font-size: 12px;
-              padding: 6px 12px;
-          }
-          #hud-ui, #questLog-ui, #inventory-ui {
-              font-size: 14px;
-              padding: 8px;
-          }
-          #dialogueBox {
-              width: 90%;
-              bottom: 15%;
-          }
-      }
-    </style>
-  </head>
-  <body>
-    <!-- Game controls bar (Menu, Restart, Instructions) -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no"/>
+  <title>Resign and Reborn (Unified)</title>
+  <style>
+    /* ===== CODE 1 STYLE & TEMPLATE ===== */
+    body, html { margin:0; padding:0; height:100%; font-family:'Orbitron',sans-serif; background:#6bcc70; color:#fff; overflow:hidden; }
+    .screen { display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%); }
+    .screen.active { display:flex; flex-direction:column; justify-content:center; align-items:center; animation:fadeIn .6s ease-out; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .container { text-align:center; max-width:1000px; width:100%; }
+    button { background:linear-gradient(135deg,#283c86 0%,#45a247 100%); border:2px solid #fff; border-radius:8px;
+      color:#fff; font-size:18px; text-transform:uppercase; padding:12px 30px; margin:20px auto 0; display:block;
+      cursor:pointer; transition:all .3s ease; }
+    button:hover { background:linear-gradient(135deg,#45a247 0%,#283c86 100%); transform:translateY(-2px); }
+    #game-title { font-size:2.5em; margin-bottom:30px; color:#e94560; text-shadow:0 0 10px rgba(255,255,255,0.5); }
+
+    /* ===== UI PANELS ===== */
+    .ui-panel { position:absolute; background:rgba(0,0,0,0.65); padding:8px 12px; border-radius:5px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.2); font-family:'Orbitron',sans-serif; color:#eee; display:none; z-index:1000; }
+    #game-screen.active .ui-panel { display:block; }
+    #hud       { top:10px; left:10px; font-size:14px; }
+    #questLog  { top:10px; right:10px; font-size:14px; max-height:100px; overflow-y:auto; }
+    #inventory { bottom:10px; left:10px; right:10px; text-align:center; }
+    #dialogueBox { bottom:70px; left:50%; transform:translateX(-50%); width:90%; max-width:500px;
+      font-size:16px; line-height:1.4; text-align:center; border:1px solid #555; }
+
+    /* ===== MOBILE CONTROLS ===== */
+    #mobileControls { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); display:none; z-index:1500; }
+    body.mobile #mobileControls { display:flex; }
+    #mobileControls .dpad { display:grid; grid-template-columns:50px 50px 50px;
+      grid-template-rows:50px 50px 50px; gap:5px; background:rgba(0,0,0,0.3); padding:10px; border-radius:10px; }
+    #mobileControls .dpad button { background:rgba(255,255,255,0.2); border:none; border-radius:4px;
+      font-size:24px; color:#fff; cursor:pointer; transition:background .2s; }
+    #mobileControls .dpad button:active { background:rgba(255,255,255,0.5); }
+    .up    { grid-column:2; grid-row:1; }
+    .left  { grid-column:1; grid-row:2; }
+    .down  { grid-column:2; grid-row:3; }
+    .right { grid-column:3; grid-row:2; }
+    #mobileActions { display:flex; flex-direction:column; gap:10px; margin-left:20px; }
+    #mobileActions button { background:rgba(0,0,0,0.3); border:none; border-radius:6px;
+      padding:10px; color:#fff; cursor:pointer; transition:background .2s; }
+    #mobileActions button:active { background:rgba(0,0,0,0.6); }
+
+    /* ===== PHASER GAME CONTAINER ===== */
+    #game-container { position:relative; width:600px; height:600px; background:#000;
+      border:2px solid #e94560; box-shadow:0 0 20px rgba(233,69,96,0.5); overflow:hidden; margin:auto; display:none; }
+    #game-screen.active #game-container { display:block; }
+
+    /* ===== GAME CONTROLS BAR ===== */
+    #game-controls { position:fixed; top:0; left:0; width:100%; text-align:center;
+      background:rgba(26,26,46,0.8); padding:10px 0; z-index:101; display:none; }
+    #game-screen.active #game-controls { display:block; }
+    #game-controls button { display:inline-block; padding:8px 15px; margin:0 5px; font-size:14px; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+</head>
+<body>
+  <!-- START MENU -->
+  <div id="start-menu-screen" class="active screen">
+    <div class="container">
+      <h1 id="game-title">Resign and Reborn</h1>
+      <button id="play-button">Play</button>
+      <button id="settings-button">Settings</button>
+      <button id="instructions-button">Instructions</button>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="settings-screen" class="screen">
+    <div class="container"><h2>Settings</h2><button id="settings-back-button">Back</button></div>
+  </div>
+
+  <!-- INSTRUCTIONS -->
+  <div id="instructions-screen" class="screen">
+    <div class="container">
+      <h2>Instructions</h2>
+      <ul style="text-align:left; display:inline-block;">
+        <li>Arrow / D-Pad: Move</li>
+        <li>SPACE / Confirm: Interact / Advance Dialogue</li>
+        <li>I: Instructions</li>
+        <li>M: Main Menu</li>
+      </ul>
+      <button id="instructions-back-button">Back</button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen">
+    <div id="game-container"></div>
+    <div id="hud"       class="ui-panel">HP:100/100 | XP:0 | Level:1</div>
+    <div id="questLog"  class="ui-panel">Quest Log: None</div>
+    <div id="inventory" class="ui-panel">Inventory: (empty)</div>
+    <div id="dialogueBox" class="ui-panel"></div>
+
+    <!-- MOBILE CONTROLS -->
+    <div id="mobileControls">
+      <div class="dpad">
+        <button class="up"    data-dir="up">↑</button>
+        <button class="left"  data-dir="left">←</button>
+        <button class="down"  data-dir="down">↓</button>
+        <button class="right" data-dir="right">→</button>
+      </div>
+      <div id="mobileActions">
+        <button id="mobileConfirm">Confirm</button>
+        <button id="mobileInteract">Interact</button>
+      </div>
+    </div>
+
+    <!-- CONTROLS BAR -->
     <div id="game-controls">
       <button id="game-menu-button">Menu</button>
       <button id="game-restart-button">Restart</button>
       <button id="game-instructions-button">Instructions</button>
+      <button id="skilltree-button">Skill Tree</button>
     </div>
-    <!-- HUD (Game information, hidden when not in game) -->
-    <div id="hud"></div>
-    <!-- Additional UI overlays for Quest and Inventory -->
-    <div id="hud-ui">HP: 100 | XP: 0 | Level: 1</div>
-    <div id="questLog-ui">
-      <strong>Quest Log</strong>
-      <ul id="questList">
-        <li>No active quests.</li>
-      </ul>
+  </div>
+
+  <!-- GAME OVER -->
+  <div id="game-over-screen" class="screen">
+    <div class="container">
+      <div id="game-over-message">Game Over</div>
+      <button id="play-again-button">Play Again</button>
+      <button id="main-menu-button">Main Menu</button>
     </div>
-    <div id="inventory-ui">
-      <strong>Inventory</strong>
-      <ul id="inventoryList">
-        <li>Empty</li>
-      </ul>
-    </div>
-    
-    <!-- Start Menu Screen -->
-    <div id="start-menu-screen" class="active screen">
-      <div class="container">
-        <h1 id="game-title">Resign and Reborn</h1>
-        <button id="play-button">Play</button>
-        <button id="settings-button">Settings</button>
-        <button id="instructions-button">Instructions</button>
-      </div>
-    </div>
-    
-    <!-- Settings Screen -->
-    <div id="settings-screen" class="screen">
-      <div class="container">
-        <h2>Settings</h2>
-        <!-- Settings options go here -->
-        <button id="settings-back-button">Back</button>
-      </div>
-    </div>
-    
-    <!-- Instructions Screen -->
-    <div id="instructions-screen" class="screen">
-      <div class="container">
-        <h2>Instructions</h2>
-        <h3>How to play:</h3>
-        <ul>
-          <li>Use arrow keys or on-screen D-pad to move.</li>
-          <li>Press SPACE to interact.</li>
-          <li>Access quest log and inventory via UI overlays.</li>
-          <li>Press I for Instructions and M for Main Menu during gameplay.</li>
-        </ul>
-        <button id="instructions-back-button">Back</button>
-      </div>
-    </div>
-    
-    <!-- Game Screen (Phaser will render the game inside the container) -->
-    <div id="game-screen" class="screen">
-      <div id="game-container"></div>
-    </div>
-    
-    <!-- Game Over Screen -->
-    <div id="game-over-screen" class="screen">
-      <div class="container">
-        <div id="game-over-message">Game Over</div>
-        <button id="play-again-button">Play Again</button>
-        <button id="main-menu-button">Main Menu</button>
-      </div>
-    </div>
-    
-    <!-- Dialogue Box (for in-game text interactions) -->
-    <div id="dialogueBox">
-      <p id="dialogueText">Dialogue goes here.<br /><em>Press SPACE to continue...</em></p>
-    </div>
-    
-    <!-- Mobile on-screen controls -->
-    <div id="mobileControls">
-      <div class="dpad">
-        <button id="up">↑</button>
-        <button id="left">←</button>
-        <button id="down">↓</button>
-        <button id="right">→</button>
-      </div>
-    </div>
-    <!-- Mobile Action Buttons: Interact and Exit Dialogue (only on mobile) -->
-    <div id="mobileActions">
-      <button id="mobile-interact">Interact</button>
-      <button id="mobile-exit-dialogue" style="display: none;">Exit Dialogue</button>
-    </div>
-    
-    <!-- Audio (Background music and game sounds) -->
-    <audio autoplay id="background-music" loop>
-      <source src="background-music.mp3" type="audio/mpeg" />
-    </audio>
-    <audio id="start-game-sound">
-      <source src="start-game-sound.mp3" type="audio/mpeg" />
-    </audio>
-    
-    <!-- Load Phaser.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        /* UI Manager Class: Handles screen swapping and UI events */
-        class GameUI {
-          constructor() {
-            this.startMenuScreen = document.getElementById('start-menu-screen');
-            this.settingsScreen = document.getElementById('settings-screen');
-            this.instructionsScreen = document.getElementById('instructions-screen');
-            this.gameScreen = document.getElementById('game-screen');
-            this.gameOverScreen = document.getElementById('game-over-screen');
-            this.gameControls = document.getElementById('game-controls');
-            this.hud = document.getElementById('hud');
-          }
-          swapToScreen(screen) {
-            [this.startMenuScreen, this.settingsScreen, this.instructionsScreen, this.gameScreen, this.gameOverScreen].forEach(s => s.classList.remove('active'));
-            screen.classList.add('active');
-            if(screen.id === 'game-screen') {
-              this.hud.style.display = 'block';
-              this.gameControls.style.display = 'block';
-            } else {
-              this.hud.style.display = 'none';
-              this.gameControls.style.display = 'none';
-            }
-          }
-          startGame() {
-            const startGameSound = document.getElementById('start-game-sound');
-            this.swapToScreen(this.gameScreen);
-            startGameSound.play();
-          }
-          endGame() {
-            this.swapToScreen(this.gameOverScreen);
-          }
-          mainMenu() {
-            this.swapToScreen(this.startMenuScreen);
-          }
-          playAgain() {
-            this.swapToScreen(this.gameScreen);
-          }
-          settings() {
-            this.swapToScreen(this.settingsScreen);
-          }
-          instructions() {
-            this.swapToScreen(this.instructionsScreen);
-          }
+  </div>
+
+  <!-- BACKGROUND MUSIC -->
+  <audio id="background-music" loop>
+    <source src="sounds/backgroundMusic.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+  /* ===== GLOBAL STATE ===== */
+  const TILE_COUNT=20, TILE_SIZE=600/TILE_COUNT;
+  let gameState={ playerHP:100, playerMaxHP:100, playerXP:0, playerLevel:1,
+    inventory:[], quests:[], inDialogue:false, dialogueQueue:[], currentDialogue:0,
+    isMobile:false, mobileDir:null };
+
+  function updateHudUI(){
+    document.getElementById('hud').innerText=
+      `HP:${gameState.playerHP}/${gameState.playerMaxHP} | XP:${gameState.playerXP} | Level:${gameState.playerLevel}`;
+  }
+  function updateInventoryUI(){
+    const inv=document.getElementById('inventory');
+    inv.innerText=gameState.inventory.length
+      ? 'Inventory: '+gameState.inventory.join(', ')
+      : 'Inventory: (empty)';
+  }
+  function updateQuestLogUI(){
+    const ql=document.getElementById('questLog');
+    if(!gameState.quests.length) ql.innerText='Quest Log: None';
+    else ql.innerHTML='Quests:<br>'+gameState.quests.map(q=>
+      `<strong>${q.title||q.id}</strong> - ${q.status}`
+    ).join('<br>');
+  }
+  function addItem(item){ gameState.inventory.push(item); updateInventoryUI(); }
+  function addQuest(q){
+    if(!gameState.quests.find(x=>x.id===q.id)){
+      gameState.quests.push(q); updateQuestLogUI();
+    }
+  }
+  function completeQuest(id){
+    const q=gameState.quests.find(x=>x.id===id);
+    if(q&&q.status!=='Completed'){
+      q.status='Completed'; gameState.playerXP+=50;
+      updateHudUI(); updateQuestLogUI();
+    }
+  }
+
+  /* ===== PRELOAD ===== */
+  class PreloadScene extends Phaser.Scene {
+    constructor(){ super('PreloadScene'); }
+    preload(){
+      for(let i=1;i<=5;i++) this.load.image('intro'+i,`images/${i}.png`);
+      this.load.image('battle_bg','images/7.png');
+      this.load.image('enemy','Assets/enemy-sprite.png');
+      this.load.image('player','Assets/player-sprite.png');
+    }
+    create(){
+      gameState.isMobile = !this.sys.game.device.os.desktop;
+      if(gameState.isMobile) document.body.classList.add('mobile');
+      this.scene.start('PrologueScene');
+    }
+  }
+
+  /* ===== PROLOGUE ===== */
+  class PrologueScene extends Phaser.Scene {
+    constructor(){ super('PrologueScene'); }
+    create(){
+      this.pages=[
+        {img:'intro1',t:"The office lights buzzed overhead as he stared blankly at his computer screen. Paperwork piled high beside him, and the endless drone of colleagues typing echoed in the background. It was just another night of overtime for him—a nameless face in a sea of cubicles, drifting between caffeine highs and the dull ache of routine. His eyes grew heavy, and before he realized it, sleep claimed him."},
+        {img:'intro2',t:"In his dream, a grand cathedral of swirling lights and graceful arches materialized around him. Luminescent ribbons danced across the marble floor, guiding his gaze to a brilliant figure at the far end of the hall. She stood in ethereal splendor, clad in flowing white and gold, her hair like moonlight crowned with delicate blossoms. Awe overcame him as she beckoned him forward, the radiance of her presence banishing every shadow."},
+        {img:'intro3',t:"Suddenly, a powerful surge of energy surrounded him. His office attire fluttered in an otherworldly breeze, and he felt weightless—like he stood on the threshold between two worlds. The goddess smiled, her eyes filled with warmth and mystery, and his heart pounded with an unfamiliar mix of fear and hope." },
+        {img:'intro4',t:"Goddess: “Mortal one, you have slumbered through your life’s true calling for too long. I have watched your weary soul endure endless days of toil. Tonight, I extend my hand to awaken the dormant spark within you.”"},
+        {img:'intro4',t:"Protagonist: “W-Where am I? This can’t be real. I was just…in my office, trying to finish that last report…”"},
+        {img:'intro4',t:"Goddess: “This place is both a dream and a truth—an echo of what could be. You stand at a crossroads: remain in the hollow shell of routine or seize the destiny that awaits you beyond mortal understanding.”"},
+        {img:'intro4',t:"Protagonist: “Destiny? You mean…me? I’m just an overworked office drone. I can’t possibly be the hero you’re looking for.”"},
+        {img:'intro4',t:"Goddess:  “Greatness often sleeps in the unlikeliest of hearts. I sense your spirit yearning for change. Will you answer my call?”"},
+        {img:'intro4',t:"Protagonist: “I—I don’t know what this all means. But if there’s a chance I can break free from the life I’ve been living…then I’ll listen. Tell me what I need to do.”"},
+        {img:'intro4',t:"Goddess: “Brave one, our realms are entwined. Darkness seeps into your world, sapping hope and ambition. You shall stand as a bridge for salvation. Take my hand, and I shall guide you to a new dawn.”"},
+        {img:'intro5',t:"As the goddess’s fingers touch his, a burst of light swallows the cathedral. The faint hum of fluorescent lights reemerges, and he jolts awake at his desk. Papers flutter to the floor. Heart pounding, he realizes that though he has returned to his mundane surroundings, something profound has changed. "},
+        {img:'intro5',t:"A promise echoes in his mind—a promise of purpose, adventure, and the awakening of a power he never dreamed he possessed. And so, under the harsh glow of office lamps, his extraordinary story begins."}
+      ];
+      this.i=0; this.showPage();
+      this.input.keyboard.on('keydown-SPACE',()=>this.next());
+      document.getElementById('mobileConfirm').onclick=()=>this.next();
+      document.getElementById('dialogueBox').onclick=()=>this.next();
+      updateHudUI(); updateInventoryUI(); updateQuestLogUI();
+    }
+    showPage(){
+      const p=this.pages[this.i],db=document.getElementById('dialogueBox');
+      db.style.display='block'; db.innerText=p.t;
+      if(this.bg) this.bg.destroy();
+      this.bg=this.add.image(300,300,p.img).setDisplaySize(600,600).setDepth(-1);
+    }
+    next(){
+      this.i++;
+      if(this.i<this.pages.length) return this.showPage();
+      this.bg.destroy();
+      document.getElementById('dialogueBox').style.display='none';
+      gameUI.startGame();
+      this.scene.start('ExplorationScene');
+    }
+  }
+
+  /* ===== EXPLORATION ===== */
+  class ExplorationScene extends Phaser.Scene {
+    constructor(){ super('ExplorationScene'); }
+    init(d){ this.p=d.pPos||{x:10,y:10}; this.moving=false; this.last=0; this.delay=180; }
+    create(){
+      ['hud','questLog','inventory','game-controls'].forEach(id=>
+        document.getElementById(id).style.display='block'
+      );
+      updateHudUI(); updateInventoryUI(); updateQuestLogUI();
+
+      this.events.on('resume',(_s,data)=>{
+        this.moving=false;
+        if(data&&data.pPos){
+          this.p=data.pPos;
+          this.player.setPosition(
+            this.p.x*TILE_SIZE+TILE_SIZE/2,
+            this.p.y*TILE_SIZE+TILE_SIZE/2
+          );
         }
-        
-        // Global constants for tile size and map dimensions.
-        const TILE_SIZE = 32;
-        const MAP_WIDTH = 20;
-        const MAP_HEIGHT = 20;
-        
-        /* ---------------- Prologue Scene with Narration ---------------- */
-        class PrologueScene extends Phaser.Scene {
-          constructor() { super({ key: "PrologueScene" }); }
-          init() { this.skipNarration = window.narrationComplete ? true : false; }
-          preload() {
-            this.load.image("intro1", "Assets/1.png");
-            this.load.image("intro2", "Assets/2.png");
-            this.load.image("intro3", "Assets/3.png");
-            this.load.image("intro4", "Assets/4.png");
-            this.load.image("intro5", "Assets/5.png");
-          }
-          create() {
-            if (this.skipNarration) {
-              console.log("Skipping prologue, starting ExplorationScene");
-              this.scene.start("ExplorationScene");
-              return;
-            }
-            this.introPages = [
-              { image: "intro1", text: "The office lights buzzed overhead as he stared blankly at his computer screen. Paperwork piled high beside him, and the endless drone of colleagues typing echoed in the background. It was just another night of overtime for him—a nameless face in a sea of cubicles, drifting between caffeine highs and the dull ache of routine. His eyes grew heavy, and before he realized it, sleep claimed him." },
-              { image: "intro2", text: "In his dream, a grand cathedral of swirling lights and graceful arches materialized around him. Luminescent ribbons danced across the marble floor, guiding his gaze to a brilliant figure at the far end of the hall. She stood in ethereal splendor, clad in flowing white and gold, her hair like moonlight crowned with delicate blossoms. Awe overcame him as she beckoned him forward, the radiance of her presence banishing every shadow." },
-              { image: "intro3", text: "Suddenly, a powerful surge of energy surrounded him. His office attire fluttered in an otherworldly breeze, and he felt weightless—like he stood on the threshold between two worlds. The goddess smiled, her eyes filled with warmth and mystery, and his heart pounded with an unfamiliar mix of fear and hope." },
-              { image: "intro4", text: `Goddess (soft, melodic voice): “Mortal one, you have slumbered through your life’s true calling for too long. I have watched your weary soul endure endless days of toil. Tonight, I extend my hand to awaken the dormant spark within you.”` },
-              { image: "intro4", text: `Protagonist (voice trembling): “W-Where am I? This can’t be real. I was just…in my office, trying to finish that last report…”` },
-              { image: "intro4", text: `Goddess (stepping closer): “This place is both a dream and a truth—an echo of what could be. You stand at a crossroads: remain in the hollow shell of routine or seize the destiny that awaits you beyond mortal understanding.”` },
-              { image: "intro4", text: `Protagonist (eyes widening): “Destiny? You mean…me? I’m just an overworked office drone. I can’t possibly be the hero you’re looking for.”` },
-              { image: "intro4", text: `Goddess (smiling gently): “Greatness often sleeps in the unlikeliest of hearts. I sense your spirit yearning for change. Will you answer my call?”` },
-              { image: "intro4", text: `Protagonist: “I—I don’t know what this all means. But if there’s a chance I can break free from the life I’ve been living…then I’ll listen. Tell me what I need to do.”` },
-              { image: "intro4", text: `Goddess: “Brave one, our realms are entwined. Darkness seeps into your world, sapping hope and ambition. You shall stand as a bridge for salvation. Take my hand, and I shall guide you to a new dawn.”` },
-              { image: "intro4", text: `Protagonist: “I’m ready…or at least, I’m willing to try.”` },
-              { image: "intro4", text: `Goddess: “Then let the first step be taken. A new journey begins, one that will test your resolve—and reveal the power within your soul.”` },
-              { image: "intro5", text: "As the goddess’s fingers touch his, a burst of light swallows the cathedral. The faint hum of fluorescent lights reemerges, and he jolts awake at his desk. Papers flutter to the floor. Heart pounding, he realizes that though he has returned to his mundane surroundings, something profound has changed. " },
-              { image: "intro5", text: "A promise echoes in his mind—a promise of purpose, adventure, and the awakening of a power he never dreamed he possessed. And so, under the harsh glow of office lamps, his extraordinary story begins." }
-            ];
-            this.currentPage = 0;
-            this.createPage();
-            // Use pointerup (instead of pointerdown) for touch devices
-            this.input.keyboard.on("keydown-SPACE", this.nextPage, this);
-            this.input.on("pointerup", this.nextPage, this);
-          }
-          createPage() {
-            if (this.pageContainer) { this.pageContainer.destroy(); }
-            this.pageContainer = this.add.container(0, 0);
-            let currentData = this.introPages[this.currentPage];
-            this.introImage = this.add.image(this.cameras.main.width/2, this.cameras.main.height/2, currentData.image);
-            this.introImage.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
-            this.introImage.setOrigin(0.5, 0.5);
-            this.pageContainer.add(this.introImage);
-            let rect = this.add.rectangle(this.cameras.main.width/2, this.cameras.main.height - 150, this.cameras.main.width, 300, 0xffffff, 0.8);
-            rect.setOrigin(0.5, 0);
-            this.pageContainer.add(rect);
-            this.pageText = this.add.text(this.cameras.main.width * 0.05, this.cameras.main.height - 140, currentData.text, {
-              font: "18px Arial",
-              fill: "#000000",
-              wordWrap: { width: this.cameras.main.width * 0.9 }
-            });
-            this.pageContainer.add(this.pageText);
-          }
-          nextPage() {
-            this.currentPage++;
-            if (this.currentPage >= this.introPages.length) {
-              window.narrationComplete = true;
-              console.log("Prologue finished, starting ExplorationScene...");
-              this.scene.start("ExplorationScene");
-            } else { this.createPage(); }
-          }
-        }
-        
-        /* ---------------- Exploration Scene ---------------- */
-        class ExplorationScene extends Phaser.Scene {
-          constructor() {
-            super({ key: "ExplorationScene" });
-            this.inventory = [];
-            this.activeQuests = [];
-            this.dialogueActive = false;
-          }
-          preload() {
-            // Generate placeholder textures.
-            this.textures.generate("player", { data: ["1111","1221","1221","1111"], pixelWidth: TILE_SIZE/4 });
-            
-            // Grass tile.
-            let gfx = this.make.graphics({ add: false });
-            gfx.fillStyle(0x00aa00,1);
-            gfx.fillRect(0,0, TILE_SIZE, TILE_SIZE);
-            gfx.generateTexture("grass", TILE_SIZE, TILE_SIZE);
-            gfx.clear();
-            
-            // HighGrass tile.
-            gfx.fillStyle(0x007700,1);
-            gfx.fillRect(0,0, TILE_SIZE, TILE_SIZE);
-            gfx.generateTexture("highGrass", TILE_SIZE, TILE_SIZE);
-            gfx.clear();
-            
-            // Tree tile.
-            gfx.fillStyle(0x228822,1);
-            gfx.fillRect(0,0, TILE_SIZE, TILE_SIZE);
-            gfx.generateTexture("tree", TILE_SIZE, TILE_SIZE);
-            gfx.clear();
-            
-            // Fence tile.
-            gfx.lineStyle(2, 0x654321,1);
-            gfx.strokeRect(0,0, TILE_SIZE, TILE_SIZE);
-            gfx.generateTexture("fence", TILE_SIZE, TILE_SIZE);
-            gfx.destroy();
-            
-            // Generate a simple house texture.
-            let houseGfx = this.make.graphics({ add: false });
-            houseGfx.fillStyle(0x964B00, 1);
-            houseGfx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
-            houseGfx.generateTexture("house", TILE_SIZE, TILE_SIZE);
-            houseGfx.destroy();
-            
-            // Generate a simple NPC texture.
-            let npcGfx = this.make.graphics({ add: false });
-            npcGfx.fillStyle(0x0000ff, 1);
-            npcGfx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
-            npcGfx.generateTexture("npc", TILE_SIZE, TILE_SIZE);
-            npcGfx.destroy();
-          }
-          create() {
-            // Create 2D map array with base tile "grass"
-            this.mapData = [];
-            for(let y=0; y<MAP_HEIGHT; y++){
-              this.mapData[y]=[];
-              for(let x=0; x<MAP_WIDTH; x++){
-                this.mapData[y][x]="grass";
-              }
-            }
-            // Add trees border.
-            for(let x=0; x<MAP_WIDTH; x++){
-              this.mapData[0][x] = "tree";
-              this.mapData[MAP_HEIGHT-1][x] = "tree";
-            }
-            for(let y=0; y<MAP_HEIGHT; y++){
-              this.mapData[y][0] = "tree";
-              this.mapData[y][MAP_WIDTH-1] = "tree";
-            }
-            // Define town area and fence.
-            for(let y=6; y<=13; y++){
-              for(let x=6; x<=13; x++){
-                this.mapData[y][x] = "grass";
-              }
-            }
-            for(let x=6; x<=13; x++){
-              this.mapData[5][x] = "fence";
-              this.mapData[14][x] = "fence";
-            }
-            for(let y=6; y<=13; y++){
-              this.mapData[y][5] = "fence";
-              this.mapData[y][14] = "fence";
-            }
-            // Opening in fence.
-            this.mapData[10][5] = "grass";
-            // Render map.
-            for(let y=0; y<MAP_HEIGHT; y++){
-              for(let x=0; x<MAP_WIDTH; x++){
-                let tile = this.mapData[y][x];
-                this.add.sprite(x*TILE_SIZE, y*TILE_SIZE, tile).setOrigin(0);
-              }
-            }
-            // Randomize highGrass in exterior.
-            for(let y=0; y<MAP_HEIGHT; y++){
-              for(let x=0; x<MAP_WIDTH; x++){
-                if ((x<6 || x>13 || y<6 || y>13) && this.mapData[y][x]=="grass"){
-                  if(Math.random() < 0.2){
-                    this.mapData[y][x] = "highGrass";
-                    this.add.sprite(x*TILE_SIZE, y*TILE_SIZE, "highGrass").setOrigin(0);
-                  }
-                }
-              }
-            }
-            // Add houses in the town.
-            this.add.sprite(7 * TILE_SIZE, 7 * TILE_SIZE, "house").setOrigin(0);
-            this.add.sprite(7 * TILE_SIZE, 12 * TILE_SIZE, "house").setOrigin(0);
-            this.add.sprite(12 * TILE_SIZE, 7 * TILE_SIZE, "house").setOrigin(0);
-            this.add.sprite(12 * TILE_SIZE, 12 * TILE_SIZE, "house").setOrigin(0);
-            
-            // Add NPCs.
-            this.npcs = [];
-            // Old Mara at tile (7,13)
-            let oldMara = {
-              tileX: 7,
-              tileY: 13,
-              name: "Old Mara",
-              backstory: "An elderly villager who lost her family in a past disaster. Wise and caring but wary of outsiders.",
-              personality: "cautious, kind",
-              dialogue: [
-                {
-                  text: "Old Mara: Greetings, traveler. Will you help our village?",
-                  options: [
-                    { option: "Yes, of course!", morality: +1, next: ["Old Mara: Thank you! Our hope is renewed."] },
-                    { option: "No, I'm in no mood.", morality: -1, next: ["Old Mara: Very well... our plight continues."] }
-                  ]
-                },
-                "Old Mara: I have seen many storms pass, but this one feels different."
-              ]
-            };
-            oldMara.sprite = this.add.sprite(oldMara.tileX * TILE_SIZE, oldMara.tileY * TILE_SIZE, "npc").setOrigin(0);
-            this.npcs.push(oldMara);
-            // Young Tobias at tile (15,7)
-            let youngTobias = {
-              tileX: 15,
-              tileY: 7,
-              name: "Young Tobias",
-              backstory: "A spirited young villager who dreams of adventure. Optimistic and adventurous yet a bit naive.",
-              personality: "optimistic, adventurous",
-              dialogue: [
-                "Young Tobias: I see hope in your eyes.",
-                "Young Tobias: Remember, even the outcast can become legend.",
-                "Young Tobias: I wish I could join you on your journey, but my place is here."
-              ],
-              quests: [
-                { questId: 2, description: "Rescue a villager for Tobias." }
-              ],
-              relationship: "friendly"
-            };
-            youngTobias.sprite = this.add.sprite(youngTobias.tileX * TILE_SIZE, youngTobias.tileY * TILE_SIZE, "npc").setOrigin(0);
-            this.npcs.push(youngTobias);
-            
-            // Create the player.
-            this.player = this.physics.add.sprite(10*TILE_SIZE, 4*TILE_SIZE, "player");
-            this.player.setOrigin(0);
-            this.player.setCollideWorldBounds(true);
-            this.player.gridX = 10;
-            this.player.gridY = 4;
-            this.moving = false;
-            // Input.
-            this.cursors = this.input.keyboard.createCursorKeys();
-            this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-            this.keyI = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I);
-            this.keyM = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M);
-            this.mobileInput = { left:false, right:false, up:false, down:false };
-            this.cameras.main.startFollow(this.player, true);
-            this.cameras.main.setZoom(2);
-            
-            // Setup dialogue box using DOM element.
-            this.dialogueBox = document.getElementById("dialogueBox");
-            this.dialogueText = document.getElementById("dialogueText");
-            
-            // Mobile on-screen controls: enable on mobile devices.
-            if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
-              document.getElementById("mobileControls").style.display = "block";
-              document.getElementById("mobileActions").style.display = "block";
-              // D-pad arrow buttons.
-              document.getElementById("up").addEventListener("touchstart", ()=>{ this.mobileInput.up = true; });
-              document.getElementById("up").addEventListener("touchend", ()=>{ this.mobileInput.up = false; });
-              document.getElementById("down").addEventListener("touchstart", ()=>{ this.mobileInput.down = true; });
-              document.getElementById("down").addEventListener("touchend", ()=>{ this.mobileInput.down = false; });
-              document.getElementById("left").addEventListener("touchstart", ()=>{ this.mobileInput.left = true; });
-              document.getElementById("left").addEventListener("touchend", ()=>{ this.mobileInput.left = false; });
-              document.getElementById("right").addEventListener("touchstart", ()=>{ this.mobileInput.right = true; });
-              document.getElementById("right").addEventListener("touchend", ()=>{ this.mobileInput.right = false; });
-              // "Interact" button.
-              document.getElementById("mobile-interact").addEventListener("touchstart", ()=> {
-                if(!this.dialogueActive) {
-                  this.handleInteraction();
-                }
-              });
-              // "Exit Dialogue" button.
-              document.getElementById("mobile-exit-dialogue").addEventListener("touchstart", ()=> {
-                if(this.dialogueActive){
-                  this.dialogueBox.style.display = "none";
-                  this.dialogueActive = false;
-                  this.currentNPC = null;
-                  this.currentDialogue = null;
-                  this.dialogueIndex = 0;
-                  document.getElementById("mobile-exit-dialogue").style.display = "none";
-                }
-              });
-            } else {
-              // For desktop, ensure mobile controls remain hidden.
-              document.getElementById("mobileControls").style.display = "none";
-              document.getElementById("mobileActions").style.display = "none";
-            }
-          }
-          update() {
-            if(this.dialogueActive) return;
-            if(!this.moving){
-              let dir = null;
-              if(Phaser.Input.Keyboard.JustDown(this.cursors.left)) { dir = { x:-1, y:0 }; }
-              else if(Phaser.Input.Keyboard.JustDown(this.cursors.right)) { dir = { x:1, y:0 }; }
-              else if(Phaser.Input.Keyboard.JustDown(this.cursors.up)) { dir = { x:0, y:-1 }; }
-              else if(Phaser.Input.Keyboard.JustDown(this.cursors.down)) { dir = { x:0, y:1 }; }
-              if(!dir && (this.mobileInput.left || this.mobileInput.right || this.mobileInput.up || this.mobileInput.down)){
-                if(this.mobileInput.left) { dir = { x:-1, y:0 }; }
-                else if(this.mobileInput.right) { dir = { x:1, y:0 }; }
-                else if(this.mobileInput.up) { dir = { x:0, y:-1 }; }
-                else if(this.mobileInput.down) { dir = { x:0, y:1 }; }
-              }
-              if(dir){
-                let newX = this.player.gridX + dir.x;
-                let newY = this.player.gridY + dir.y;
-                if(newX < 0 || newX >= MAP_WIDTH || newY < 0 || newY >= MAP_HEIGHT) return;
-                let tile = this.mapData[newY][newX];
-                if(tile==="tree" || tile==="fence") return;
-                this.player.gridX = newX;
-                this.player.gridY = newY;
-                this.moving = true;
-                this.tweens.add({
-                  targets: this.player,
-                  x: newX * TILE_SIZE,
-                  y: newY * TILE_SIZE,
-                  duration: 200,
-                  onComplete: () => { 
-                    this.moving = false; 
-                    this.checkTileEvent(newX, newY);
-                  }
-                });
-              }
-              if(Phaser.Input.Keyboard.JustDown(this.keySpace)){
-                this.handleInteraction();
-              }
-              if(Phaser.Input.Keyboard.JustDown(this.keyI)){
-                this.toggleInstructions();
-              }
-              if(Phaser.Input.Keyboard.JustDown(this.keyM)){
-                this.toggleMainMenu();
-              }
-            }
-          }
-          handleInteraction() {
-            if(this.dialogueActive) return;
-            // Check for nearby NPC interaction.
-            let interacted = false;
-            for(let npc of this.npcs) {
-              let dx = Math.abs(npc.tileX - this.player.gridX);
-              let dy = Math.abs(npc.tileY - this.player.gridY);
-              if(dx + dy <= 1) {
-                this.startNPCDialogue(npc);
-                interacted = true;
-                break;
-              }
-            }
-          }
-          // Simple dialogue for non-NPC interactions.
-          startDialogue(text) {
-            this.dialogueActive = true;
-            this.dialogueText.innerHTML = text + "<br /><em>Press SPACE to continue...</em>";
-            this.dialogueBox.style.display = "block";
-            this.input.keyboard.once("keydown-SPACE", () => {
-              this.dialogueActive = false;
-              this.dialogueBox.style.display = "none";
-            });
-          }
-          // Check for random encounters on highGrass.
-          checkTileEvent(x, y) {
-            let tile = this.mapData[y][x];
-            if(tile==="highGrass" && !(x>=6 && x<=13 && y>=6 && y<=13)){
-              if(Math.random() < 0.05){
-                console.log("Random encounter triggered!");
-                this.scene.pause();
-                this.scene.launch("CardBattleScene", { returnScene:"ExplorationScene", playerX: x, playerY: y });
-              }
-            }
-          }
-          // NPC Dialogue System:
-          startNPCDialogue(npc) {
-            this.currentNPC = npc;
-            this.currentDialogue = npc.dialogue;
-            this.dialogueIndex = 0;
-            this.dialogueActive = true;
-            // On mobile, show the "Exit Dialogue" button.
-            if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
-              document.getElementById("mobile-exit-dialogue").style.display = "block";
-            }
-            this.displayCurrentDialogue();
-          }
-          displayCurrentDialogue() {
-            let currentLine = this.currentDialogue[this.dialogueIndex];
-            // Add ESC listener for desktop to allow exiting dialogue.
-            this.input.keyboard.once("keydown-ESC", () => {
-              this.dialogueBox.style.display = "none";
-              this.dialogueActive = false;
-              this.currentNPC = null;
-              this.currentDialogue = null;
-              this.dialogueIndex = 0;
-              if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
-                document.getElementById("mobile-exit-dialogue").style.display = "none";
-              }
-            });
-            if(typeof currentLine === 'string') {
-              this.dialogueBox.style.display = "block";
-              this.dialogueText.innerHTML = currentLine + "<br/><em>Press SPACE to continue or ESC to exit.</em>";
-              this.input.keyboard.once("keydown-SPACE", () => {
-                this.dialogueIndex++;
-                if(this.dialogueIndex >= this.currentDialogue.length) {
-                  this.dialogueBox.style.display = "none";
-                  this.dialogueActive = false;
-                  this.currentNPC = null;
-                  this.currentDialogue = null;
-                  this.dialogueIndex = 0;
-                  if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
-                    document.getElementById("mobile-exit-dialogue").style.display = "none";
-                  }
-                } else {
-                  this.displayCurrentDialogue();
-                }
-              });
-            } else if(typeof currentLine === 'object' && currentLine.text) {
-              let text = currentLine.text + "<br/>";
-              for(let i = 0; i < currentLine.options.length; i++){
-                text += (i+1) + ". " + currentLine.options[i].option + "<br/>";
-              }
-              text += "<em>Press the number key corresponding to your choice or ESC to exit dialogue.</em>";
-              this.dialogueBox.style.display = "block";
-              this.dialogueText.innerHTML = text;
-              this.input.keyboard.once("keydown", (event) => {
-                let choice = parseInt(event.key);
-                if(choice >= 1 && choice <= currentLine.options.length) {
-                  this.currentDialogue = currentLine.options[choice - 1].next;
-                  this.dialogueIndex = 0;
-                  this.displayCurrentDialogue();
-                } else {
-                  this.displayCurrentDialogue();
-                }
-              });
-            }
-          }
-          toggleInstructions() { 
-            this.startDialogue("Instructions:\n- Use arrow keys or D-pad to move.\n- Press SPACE to interact.");
-          }
-          toggleMainMenu() {
-            ui.mainMenu();
-          }
-        }
-        
-        /* ---------------- Card Battle Scene ---------------- */
-        class CardBattleScene extends Phaser.Scene {
-          constructor() {
-            super({ key: "CardBattleScene" });
-          }
-          init(data) {
-            this.returnScene = data.returnScene;
-            this.playerReturnX = data.playerX;
-            this.playerReturnY = data.playerY;
-          }
-          preload() {}
-          create() {
-            this.add.rectangle(320,320,640,640,0x000088);
-            this.playerHP = 100;
-            this.enemyHP = 100;
-            this.playerBar = this.add.rectangle(160,50,150,20,0x00ff00);
-            this.enemyBar = this.add.rectangle(480,50,150,20,0xff0000);
-            this.add.text(20,20,"Player",{ font:"16px Arial", fill:"#fff" });
-            this.add.text(340,20,"Enemy",{ font:"16px Arial", fill:"#fff" });
-            this.battleOptionsText = this.add.text(320,550,"Choose: 1. Attack   2. Defend   3. Use Item",{ font:"16px Arial", fill:"#fff" }).setOrigin(0.5);
-            this.turnText = this.add.text(320,500,"Your turn",{ font:"18px Arial", fill:"#fff" }).setOrigin(0.5);
-            this.optionKeys = this.input.keyboard.addKeys({
-              one: Phaser.Input.Keyboard.KeyCodes.ONE,
-              two: Phaser.Input.Keyboard.KeyCodes.TWO,
-              three: Phaser.Input.Keyboard.KeyCodes.THREE
-            });
-            this.input.keyboard.on("keydown", this.handleTurn, this);
-            this.battleInProgress = true;
-          }
-          handleTurn(event) {
-            if(!this.battleInProgress) return;
-            let action = null;
-            if(event.key==="1") action = "attack";
-            else if(event.key==="2") action = "defend";
-            else if(event.key==="3") action = "item";
-            if(action){
-              this.playerAction(action);
-            }
-          }
-          playerAction(action) {
-            if(action==="attack"){
-              let damage = Phaser.Math.Between(10,20);
-              this.enemyHP -= damage;
-              this.turnText.setText("You attack for " + damage + " damage!");
-            } else if(action==="defend"){
-              this.turnText.setText("You defend and reduce incoming damage.");
-            } else if(action==="item"){
-              this.turnText.setText("You use an item!");
-            }
-            this.updateHealthBars();
-            if(this.enemyHP<=0){
-              this.turnText.setText("Enemy defeated! You win the battle.");
-              this.endBattle();
-              return;
-            }
-            this.time.delayedCall(1000, ()=>{ this.enemyAction(); }, [], this);
-          }
-          enemyAction(){
-            let damage = Phaser.Math.Between(5,15);
-            if(this.turnText.text.indexOf("defend")!==-1) damage = Math.floor(damage/2);
-            this.playerHP -= damage;
-            this.turnText.setText("Enemy attacks for " + damage + " damage!");
-            this.updateHealthBars();
-            if(this.playerHP<=0){
-              this.turnText.setText("You lost the battle.");
-              this.endBattle();
-              return;
-            }
-          }
-          updateHealthBars(){
-            this.playerBar.width = 150 * (Math.max(this.playerHP,0)/100);
-            this.enemyBar.width = 150 * (Math.max(this.enemyHP,0)/100);
-          }
-          endBattle(){
-            this.battleInProgress = false;
-            this.time.delayedCall(2000, ()=> {
-              this.scene.stop();
-              this.scene.resume(this.returnScene);
-              let expl = this.scene.get(this.returnScene);
-              expl.player.gridX = this.playerReturnX;
-              expl.player.gridY = this.playerReturnY;
-              expl.player.x = this.playerReturnX * TILE_SIZE;
-              expl.player.y = this.playerReturnY * TILE_SIZE;
-            }, [], this);
-          }
-        }
-        
-        /* ---------------- Skill Tree Scene Placeholder ---------------- */
-        class SkillTreeScene extends Phaser.Scene {
-          constructor(){
-            super({ key:"SkillTreeScene" });
-          }
-          create(){
-            this.add.rectangle(320,320,640,640,0x333333);
-            this.add.text(320,320,"Skill Tree - Coming Soon",{ font:"24px Arial", fill:"#fff" }).setOrigin(0.5);
-            this.input.keyboard.on("keydown-SPACE", ()=> {
-              this.scene.stop();
-              this.scene.resume("ExplorationScene");
-            });
-          }
-        }
-        
-        /* ---------------- Game Initialization ---------------- */
-        const config = {
-          type: Phaser.AUTO,
-          width: MAP_WIDTH * TILE_SIZE,
-          height: MAP_HEIGHT * TILE_SIZE,
-          parent: "game-container",
-          physics: {
-            default:"arcade",
-            arcade: { gravity: { y: 0 } }
-          },
-          scene: [PrologueScene, ExplorationScene, CardBattleScene, SkillTreeScene]
-        };
-        
-        const phaserGame = new Phaser.Game(config);
-        
-        /* Main Game Class that ties UI and Phaser game together */
-        class Game {
-          constructor() {
-            this.ui = new GameUI();
-            this.phaserGame = phaserGame;
-          }
-          prepareGame() {
-            this.assignButtons();
-          }
-          assignButtons(){
-            const playButton = document.getElementById("play-button");
-            const settingsButton = document.getElementById("settings-button");
-            const instructionsButton = document.getElementById("instructions-button");
-            const settingsBackButton = document.getElementById("settings-back-button");
-            const instructionsBackButton = document.getElementById("instructions-back-button");
-            const playAgainButton = document.getElementById("play-again-button");
-            const mainMenuButton = document.getElementById("main-menu-button");
-            const gameMenuButton = document.getElementById("game-menu-button");
-            const gameRestartButton = document.getElementById("game-restart-button");
-            const gameInstructionsButton = document.getElementById("game-instructions-button");
-            
-            playButton.addEventListener("click", ()=> {
-              this.ui.startGame();
-            });
-            settingsButton.addEventListener("click", ()=> {
-              this.ui.settings();
-            });
-            instructionsButton.addEventListener("click", ()=> {
-              this.ui.instructions();
-            });
-            settingsBackButton.addEventListener("click", ()=> {
-              this.ui.mainMenu();
-            });
-            instructionsBackButton.addEventListener("click", ()=> {
-              this.ui.mainMenu();
-            });
-            playAgainButton.addEventListener("click", ()=> {
-              this.ui.startGame();
-            });
-            mainMenuButton.addEventListener("click", ()=> {
-              this.ui.mainMenu();
-            });
-            gameMenuButton.addEventListener("click", ()=> {
-              this.ui.mainMenu();
-            });
-            gameRestartButton.addEventListener("click", ()=> {
-              this.ui.startGame();
-            });
-            gameInstructionsButton.addEventListener("click", ()=> {
-              this.ui.instructions();
-            });
-          }
-        }
-        
-        const ui = new Game();
-        ui.prepareGame();
-        
-        /* Optional Global Error Handler and Debug Tests */
-        window.onerror = function(message, source, lineno, colno, error) {
-          console.error("[Global Error]", message, source, lineno, colno, error);
-          return false;
-        };
-        function debugLog(info) {
-          console.log("[DEBUG]", info);
-        }
-        window.addEventListener("load", function(){
-          debugLog("Game loaded. Starting integration tests...");
-          setTimeout(function(){
-            if(window.phaserGame instanceof Phaser.Game){
-              debugLog("Test 1 Passed: Phaser.Game instance exists.");
-            } else {
-              console.error("Test 1 Failed: Phaser.Game instance not found.");
-            }
-            var explScene = phaserGame.scene.getScene("ExplorationScene");
-            if(explScene && explScene.player){
-              console.assert(explScene.player.gridX===10 && explScene.player.gridY===4, "Test 2 Failed: Incorrect player grid position.");
-              debugLog("Test 2 Passed: Player initial position is correct.");
-            } else {
-              console.error("Test 2 Failed: ExplorationScene or player not available.");
-            }
-            if(explScene){
-              let oldPos = { x: explScene.player.gridX, y: explScene.player.gridY };
-              explScene.player.gridX = -1;
-              console.assert(explScene.player.gridX >= 0, "Test 3 Failed: Out-of-bound movement allowed.");
-              explScene.player.gridX = oldPos.x;
-              debugLog("Test 3 Passed: Boundary collision test executed.");
-            } else {
-              console.error("Test 3 Failed: ExplorationScene not found for boundary test.");
-            }
-            if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
-              if(document.getElementById("mobileControls").style.display==="block" && document.getElementById("mobileActions").style.display==="block"){
-                debugLog("Test 4 Passed: Mobile controls visible.");
-              } else {
-                console.error("Test 4 Failed: Mobile controls not visible on mobile device.");
-              }
-            } else {
-              debugLog("Test 4 Passed: Non-mobile device; mobile controls hidden.");
-            }
-            if(explScene && typeof explScene.handleInteraction === "function"){
-              try {
-                explScene.handleInteraction();
-                debugLog("Test 5 Passed: handleInteraction() executed without errors.");
-              } catch(e){
-                console.error("Test 5 Failed: Error during handleInteraction()", e);
-              }
-            } else {
-              console.error("Test 5 Failed: handleInteraction() not found in ExplorationScene.");
-            }
-          },2000);
-        });
       });
-    </script>
-  </body>
+
+      this.map=this.generateMap();
+      for(let y=0;y<TILE_COUNT;y++)for(let x=0;x<TILE_COUNT;x++){
+        const t=this.map[y][x];
+        let color,dp;
+        switch(t){
+          case 1: color=0x32CD32; dp=0; break; // high grass
+          case 2: color=0x006400; dp=2; break; // tree
+          case 3: color=0x8B4513; dp=1; break; // fence
+          case 4: color=0xAAAAAA; dp=2; break; // house
+          case 5: color=0xFFD700; dp=1; break; // NPC
+          default: color=0x228B22; dp=0;  // grass
+        }
+        this.add.rectangle(
+          x*TILE_SIZE+TILE_SIZE/2,
+          y*TILE_SIZE+TILE_SIZE/2,
+          TILE_SIZE,TILE_SIZE,color
+        ).setDepth(dp);
+      }
+
+      this.player=this.add.rectangle(
+        this.p.x*TILE_SIZE+TILE_SIZE/2,
+        this.p.y*TILE_SIZE+TILE_SIZE/2,
+        TILE_SIZE*0.6,TILE_SIZE*0.6,0xff0000
+      ).setDepth(3);
+
+      this.cameras.main.startFollow(this.player,true,0.1,0.1);
+      this.cameras.main.setZoom(2.5);
+      this.cameras.main.setBounds(0,0,600,600);
+
+      this.cursors=this.input.keyboard.createCursorKeys();
+      this.keySPACE=this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+      this.keyM=this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.M);
+      this.keyI=this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.I);
+      this.keySPACE.on('down',()=>{ if(gameState.inDialogue)this.advanceDialogue(); });
+      this.keyM.on('down',()=>gameUI.mainMenu());
+      this.keyI.on('down',()=>gameUI.instructionsMenu());
+      document.getElementById('mobileConfirm').onclick=()=>{ if(gameState.inDialogue)this.advanceDialogue(); };
+
+      document.querySelectorAll('#mobileControls .dpad button').forEach(btn=>{
+        btn.addEventListener('pointerdown',e=>{ e.preventDefault(); gameState.mobileDir=btn.dataset.dir; });
+        btn.addEventListener('pointerup',e=>{ e.preventDefault(); gameState.mobileDir=null; });
+        btn.addEventListener('pointerleave',()=>{ gameState.mobileDir=null; });
+      });
+    }
+
+    generateMap(){
+      const m=Array.from({length:TILE_COUNT},()=>Array(TILE_COUNT).fill(0));
+      for(let y=0;y<TILE_COUNT;y++)for(let x=0;x<TILE_COUNT;x++){
+        if(x>=6&&x<14&&y>=6&&y<14){
+          if(x===6||x===13||y===6||y===13)m[y][x]=3;
+        } else {
+          if(Math.random()<0.1)m[y][x]=2;
+          else if(Math.random()<0.3)m[y][x]=1;
+        }
+      }
+      [[7,7],[7,12],[12,7],[12,12]].forEach(([y,x])=>m[y][x]=4);
+      [[10,8],[10,11]].forEach(([y,x])=>m[y][x]=5);
+      m[6][10]=0;
+      return m;
+    }
+
+    update(time){
+      if(this.moving||gameState.inDialogue)return;
+      let dir=null;
+      if(this.cursors.left.isDown) dir='left';
+      else if(this.cursors.right.isDown) dir='right';
+      else if(this.cursors.up.isDown) dir='up';
+      else if(this.cursors.down.isDown) dir='down';
+      else if(gameState.mobileDir) dir=gameState.mobileDir;
+
+      if(dir&&time>this.last+this.delay){
+        this.last=time; this.move(dir);
+      }
+    }
+
+    move(d) {
+      let nx=this.p.x, ny=this.p.y;
+      if(d==='left') nx--; if(d==='right') nx++;
+      if(d==='up') ny--; if(d==='down') ny++;
+      if(nx<0||nx>=TILE_COUNT||ny<0||ny>=TILE_COUNT) return;
+
+      const tt=this.map[ny][nx];
+      if([2,3,4,5].includes(tt)) return; // blocked
+
+      this.moving=true;
+      this.p={x:nx,y:ny};
+
+      this.tweens.add({
+        targets:this.player,
+        x:nx*TILE_SIZE+TILE_SIZE/2,
+        y:ny*TILE_SIZE+TILE_SIZE/2,
+        duration:this.delay,ease:'Linear',
+        onComplete:()=>{
+          this.moving=false;
+          // 20% encounter in high grass
+          if(tt===1 && Math.random()<0.2){
+            this.scene.pause();
+            this.scene.launch('CardBattleScene',{
+              returnScene:'ExplorationScene',
+              playerX:this.p.x,playerY:this.p.y
+            });
+          }
+        }
+      });
+    }
+
+    advanceDialogue(){ /* stub */ }
+  }
+
+  /* ===== CARD BATTLE ===== */
+  class CardBattleScene extends Phaser.Scene {
+    constructor(){ super('CardBattleScene'); }
+    init(data){ this.startX=data.playerX; this.startY=data.playerY; }
+    create(){
+      this.cameras.main.fadeIn(500,0,0,0);
+      this.add.image(300,300,'battle_bg').setDisplaySize(600,600);
+      let battleText=this.add.text(300,50,'Battle!',{ font:'40px Arial', fill:'#ffffff'}).setOrigin(0.5);
+      this.tweens.add({ targets:battleText, alpha:{from:1,to:0}, duration:1000, onComplete:()=>battleText.destroy() });
+      this.enemySprite=this.add.image(450,300,'enemy').setDisplaySize(80,80);
+      this.playerSprite=this.add.image(150,300,'player').setDisplaySize(80,80);
+      this.playerHP=30; this.enemyHP=30; this.playerBlock=0;
+      this.maxEnergy=3; this.playerEnergy=this.maxEnergy;
+      this.playerMaxHP=30; this.enemyMaxHP=30;
+      this.playerHPBar=this.add.graphics(); this.enemyHPBar=this.add.graphics(); this.energyBar=this.add.graphics();
+      this.add.text(20,0,"Your Health",{ font:"18px Arial", fill:"#ffffff"});
+      this.add.text(this.scale.width-220,0,"Enemy's Health",{ font:"18px Arial", fill:"#ffffff"});
+      this.add.text(20,60,"Energy",{ font:"18px Arial", fill:"#ffffff"});
+      this.updateBars();
+
+      this.deck=[];
+      if(window.playerInventory&&Array.isArray(window.playerInventory)){
+        window.playerInventory.forEach(item=>{
+          if(item.durability!==undefined){
+            if(item.durability>0) this.deck.push(item);
+          } else for(let i=0;i<item.quantity;i++) this.deck.push(item);
+        });
+      }
+      this.hand=[]; this.cardGroup=this.add.group(); this.startPlayerTurn();
+
+      this.endTurnButton=this.add.rectangle(this.scale.width-100,this.scale.height-80,150,60,0x222222).setInteractive();
+      this.add.text(this.scale.width-150,this.scale.height-100,"End Turn",{ font:"24px Arial", fill:"#ffffff"});
+      this.endTurnButton.on("pointerdown",()=>this.endPlayerTurn());
+
+      this.events.on('battleWon',()=>{
+        window.playerExp = (window.playerExp||0) + 10;
+        while(window.playerExp>=100){ window.playerExp-=100; window.playerLevel++;}
+      });
+    }
+
+    updateBars(){
+      this.playerHPBar.clear().fillStyle(0xff0000,1).fillRect(20,20,200,20);
+      this.playerHPBar.fillStyle(0x00ff00,1).fillRect(20,20,(this.playerHP/this.playerMaxHP)*200,20);
+      this.enemyHPBar.clear().fillStyle(0xff0000,1).fillRect(this.scale.width-220,20,200,20);
+      this.enemyHPBar.fillStyle(0x00ff00,1).fillRect(this.scale.width-220,20,(this.enemyHP/this.enemyMaxHP)*200,20);
+      this.energyBar.clear().fillStyle(0x222222,1).fillRect(20,60,200,20);
+      this.energyBar.fillStyle(0xffff00,1).fillRect(20,60,(this.playerEnergy/this.maxEnergy)*200,20);
+    }
+
+    startPlayerTurn(){
+      this.playerBlock=0; this.playerEnergy=this.maxEnergy; this.updateBars();
+      this.hand=[]; this.cardGroup.clear(true,true);
+      for(let i=0;i<3;i++){
+        if(!this.deck.length) break;
+        let rnd=Phaser.Utils.Array.RemoveRandomElement(this.deck);
+        this.hand.push(rnd);
+      }
+      this.displayHand();
+    }
+
+    displayHand(){
+      this.cardGroup.clear(true,true);
+      this.hand.forEach((item,i)=>{
+        let eff=item.battleEffect||{type:"attack",damage:1,cost:1},cost=eff.cost||1;
+        let x=80+i*120,y=this.scale.height-150;
+        let txt=item.name + (item.durability!==undefined?` (${item.durability})`:` x${item.quantity}`) + `\nCost:${cost}`;
+        let r=this.add.rectangle(x,y,80,120,0x444444).setStrokeStyle(2,0xffffff);
+        let t=this.add.text(x-35,y-15,txt,{ font:"16px Arial", fill:"#ffffff"});
+        r.setInteractive().on("pointerdown",()=>this.playCard(i));
+        this.cardGroup.addMultiple([r,t]);
+      });
+    }
+
+    playCard(i){
+      let item=this.hand[i],eff=item.battleEffect||{type:"attack",damage:1,cost:1};
+      if(eff.cost>this.playerEnergy) return;
+      this.playerEnergy-=eff.cost; this.updateBars();
+      let card=this.cardGroup.getChildren()[i];
+      this.tweens.add({ targets:card, scaleX:1.2,scaleY:1.2,duration:100,yoyo:true, onComplete:()=>{
+        this.hand.splice(i,1);
+        if(item.durability!==undefined){
+          item.durability--;
+          if(item.durability>0) this.deck.push(item);
+          else window.playerInventory=window.playerInventory.filter(it=>it.name!==item.name);
+        } else {
+          item.quantity--;
+          if(item.quantity>0) this.deck.push(item);
+          else window.playerInventory=window.playerInventory.filter(it=>it.quantity>0);
+        }
+        this.displayHand();
+      }});
+      if(eff.type==="attack"){
+        this.animateAttack(); this.enemyHP-=eff.damage||1; this.updateBars();
+        if(this.enemyHP<=0){
+          this.events.emit('battleWon');
+          this.time.delayedCall(1000,()=>this.scene.start("ExplorationScene",{ pPos:{x:this.startX,y:this.startY} }));
+          return;
+        }
+      } else if(eff.type==="defend"){
+        this.playerBlock+=eff.block||5; this.updateBars();
+      } else if(eff.type==="heal"){
+        this.playerHP=Math.min(this.playerMaxHP,this.playerHP+(eff.amount||5)); this.updateBars();
+      }
+    }
+
+    animateAttack(){
+      this.tweens.add({ targets:this.enemySprite, angle:{from:0,to:10},duration:50,yoyo:true,repeat:3,onComplete:()=>this.enemySprite.setAngle(0) });
+      this.enemySprite.setTint(0xffaaaa);
+      this.time.delayedCall(100,()=>this.enemySprite.clearTint());
+    }
+
+    endPlayerTurn(){
+      this.input.enabled=false;
+      this.tweens.add({ targets:this.playerSprite, x:this.playerSprite.x-10,duration:50,yoyo:true,repeat:3,onComplete:()=>{
+        let dmg=8-this.playerBlock; if(dmg<0)dmg=0;
+        this.playerHP=Math.max(0,this.playerHP-dmg); this.updateBars();
+        if(this.playerHP<=0){
+          this.time.delayedCall(1000,()=>this.scene.start("ExplorationScene",{ pPos:{x:this.startX,y:this.startY} }));
+          return;
+        }
+        this.input.enabled=true;
+        this.time.delayedCall(500,()=>this.startPlayerTurn());
+      }});
+    }
+  }
+
+  /* ===== UI & GAME ===== */
+  class GameUI {
+    constructor(){
+      this.start    =document.getElementById('start-menu-screen');
+      this.settings =document.getElementById('settings-screen');
+      this.instr    =document.getElementById('instructions-screen');
+      this.game     =document.getElementById('game-screen');
+      this.over     =document.getElementById('game-over-screen');
+      this.ctrls    =document.getElementById('game-controls');
+    }
+    swap(el){
+      document.querySelector('.screen.active').classList.remove('active');
+      el.classList.add('active');
+      this.ctrls.style.display=(el===this.game)?'block':'none';
+    }
+    startGame(){
+      this.swap(this.game);
+      const bg = document.getElementById('background-music');
+      if(bg && bg.paused) bg.play();
+    }
+    mainMenu()         { this.swap(this.start) }
+    settingsMenu()     { this.swap(this.settings) }
+    instructionsMenu() { this.swap(this.instr) }
+    playAgain()        { this.startGame() }
+    endGame()          { this.swap(this.over) }
+  }
+
+  class Game {
+    constructor(){
+      this.ui=new GameUI(); this.phaser=null; this.bindButtons();
+    }
+    bindButtons(){
+      document.getElementById('play-button').onclick=()=>{
+        this.ui.startGame();
+        // initialize inventory & stats
+        window.playerInventory=[
+          { name:"Sword", quantity:1, durability:50, battleEffect:{type:"attack",damage:6,cost:1} },
+          { name:"Ashield", quantity:1, durability:30, battleEffect:{type:"defend",block:8,cost:1} },
+          { name:"Chicken", quantity:1, battleEffect:{type:"attack",damage:2,cost:1} },
+          { name:"Wood", quantity:2, battleEffect:{type:"attack",damage:3,cost:1} },
+          { name:"Healing Potion", quantity:2, battleEffect:{type:"heal",amount:5,cost:1} }
+        ];
+        window.playerLevel=1;
+        window.playerExp=0;
+        this.launch();
+      };
+      document.getElementById('settings-button').onclick=()=>this.ui.settingsMenu();
+      document.getElementById('instructions-button').onclick=()=>this.ui.instructionsMenu();
+      document.getElementById('settings-back-button').onclick=()=>this.ui.mainMenu();
+      document.getElementById('instructions-back-button').onclick=()=>this.ui.mainMenu();
+      document.getElementById('main-menu-button').onclick=()=>this.ui.mainMenu();
+      document.getElementById('play-again-button').onclick=()=>this.ui.startGame();
+      document.getElementById('game-menu-button').onclick=()=>this.ui.mainMenu();
+      document.getElementById('game-restart-button').onclick=()=>window.location.reload();
+      document.getElementById('game-instructions-button').onclick=()=>this.ui.instructionsMenu();
+    }
+    launch(){
+      if(this.phaser) return;
+      this.phaser=new Phaser.Game({
+        type:Phaser.AUTO,
+        width:600,height:600,
+        parent:'game-container',
+        backgroundColor:'#000',
+        scene:[PreloadScene,PrologueScene,ExplorationScene,CardBattleScene],
+        physics:{ default:'arcade', arcade:{debug:false} }
+      });
+    }
+  }
+
+  /* ===== INIT ===== */
+  const gameUI=new GameUI(), gameApp=new Game();
+  updateHudUI(); updateInventoryUI(); updateQuestLogUI();
+  </script>
+</body>
 </html>

@@ -117,3 +117,43 @@ testing_and_quality_assurance:
     Provide clear and actionable debugging code or test cases to verify that all components of the final HTML file work as intended.
     Review the code for syntax, logic errors, and performance issues. Ensure that scene transitions, dialogue progression,
     UI updates, and control inputs (arrow keys, on-screen D-pad, SPACE, I, and M) function properly, and include fixes or suggestions where necessary. Also make sure the play, menu, instructions and restart work. Check for mobile controls.
+
+
+generate_visual_assets:
+  description: >
+    Generate the 9 images using the prompts defined under `intro_images` in the game design document ({game[intro_images]}). Use the comfyui tool.
+  expected_output: >
+    A JSON string summarizing the results of the image generation attempts. This JSON should detail the success or failure
+    for each requested image and provide the file path for successfully generated images, suitable for use by the asset integrator.
+    Example success format: {"success": true, "results": [{"index": 0, "status": "success", "path": "images/image_0.png", "prompt": "..."}, ...]}
+    Example failure format: {"success": false, "results": [{"index": 0, "status": "error", "error": "...", "prompt": "..."}, ...]}
+  agent: image_assets_generator
+  # This task-level prompt provides context TO the agent before it starts.
+  # It should guide the agent on WHAT to do for this task, leveraging its core programming (from agents.yaml).
+  enhanced_prompt: >
+    Your task is to generate the set of introductory images as defined in the 'intro_images' section of the game design document ({game[intro_images]}).
+    You must use your configured 'comfyui' tool to generate these images based on their respective prompts.
+    Ensure you follow the instructions from your core programming (in agents.yaml) on how to format the input for the 'comfyui' tool (providing a list of all required prompts in one call).
+    The tool will return a JSON string summarizing the outcome for each image. Your final output for this task must be exactly that JSON string.
+
+generate_audio_assets:
+  description: >
+    Automatically source and integrate background music and sound effects
+    using the audio_assets_generator agent.
+  expected_output: >
+    MP3 or WAV files in sounds/ named by asset type, with license info.
+  agent: audio_assets_generator
+  enhanced_prompt: >
+    Find/acquire each required audio asset, save to sounds/{asset_type}.mp3 (or .wav),
+    and produce a CSV or JSON manifest mapping files to their sources and licenses.
+
+integrate_assets:
+  description: >
+    Embed generated visual and audio assets into the game’s codebase (HTML, CSS, JS).
+  expected_output: >
+    Updated index.html (or template) and Phaser preload code that loads images/ and sounds/.
+  agent: asset_integrator
+  enhanced_prompt: >
+    Modify the template to include <link> or <script> tags for assets, update Phaser
+    this.load.image() and this.load.audio(), and add CSS media queries so images
+    adapt to mobile screen sizes. Ensure audio is preloaded and playable via Phaser.
