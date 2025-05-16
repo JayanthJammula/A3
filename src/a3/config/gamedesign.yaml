@@ -1,166 +1,378 @@
-# config/gamedesign.yaml
-
-example4_rpg: >
-  """
-  Game Instructions:
-
-  Overview:
-  Build an HTML5 game titled "Resign and Reborn" using Phaser.js (v3.55.2). The game must be developed as a single,
-  integrated HTML file with embedded CSS and JavaScript, and must run on both desktop and mobile browsers.
-  The game world is a 20x20 tile-based map consisting of a central town and a surrounding forest. Within the forest,
-  there are two types of ground tiles: standard "grass" and "highGrass". When the player steps on a "highGrass" tile (outside
-  the town), there is a 5% chance to trigger a Pokémon-style, turn-based card battle sequence. The town is enclosed by a
-  visible fence and contains exactly 4 houses and 2 NPCs that the player can interact with via dialogue.
-  **Important:** The character must be able to freely exit the town and explore the forest area.
-
-  Map and World Design:
-  - The map is divided into a 20x20 grid of tiles.
-  - Town Area:
-      * The town occupies a central region of the map (for example, tiles from (6,6) to (13,13)) and is fully enclosed by a fence
-        (non-walkable tiles) that clearly demarcates its boundaries.
-      * Place exactly 4 houses at fixed coordinates (e.g., (7,7), (7,12), (12,7), (12,12)). If the house sprite is missing,
-        insert a placeholder comment (e.g., <!-- TODO: Add house sprite -->).
-      * Place 2 NPCs at predetermined positions in the town (for example, (8,10) and (11,10)) that initiate dialogue when interacted with.
-  - Forest Area:
-      * The area surrounding the town is a forest composed of:
-          - "grass" tiles: Standard green tiles representing walkable terrain.
-          - "highGrass" tiles: Visually distinct (darker or taller) tiles indicating areas where a random encounter might occur.
-            Each time the player enters a highGrass tile outside the town, perform a 5% chance check to trigger a random encounter.
-            If the highGrass sprite is missing, include a placeholder comment (e.g., <!-- TODO: Add highGrass sprite -->).
-          - "tree" tiles: Tiles that represent obstacles. If a tree sprite is missing, include a placeholder (e.g., <!-- TODO: Add tree sprite -->).
-
-  Gameplay Mechanics:
-  1. Player Movement & Controls:
-      - The player moves one tile at a time (for instance, each tile is 32x32 pixels).
-      - Desktop Controls:
-          * Arrow Keys: Move the player one tile in the corresponding direction.
-          * SPACE: Use this key to interact with NPCs, houses, or objects, and to advance dialogue.
-          * I: Open the Instructions screen.
-          * M: Open the Main Menu.
-      - Mobile Controls:
-          * On-screen D-pad (positioned at the bottom-left) for directional movement.
-          * On-screen action buttons (positioned at the bottom-right) labeled "Confirm" (acts as SPACE) and "Interact" (acts as the interact key).
-      - The camera must smoothly follow the player as they move and should be zoomed in (displaying fewer tiles at once) to focus on gameplay details.
-      - **Note:** The character must be able to exit the town and roam freely throughout the forest.
+example4_rpg: |
+  # Full Game Configuration for "Resign and Reborn"
   
-  2. Dialogue System:
-      - When the player is adjacent to an NPC or certain interactive objects (e.g., houses), pressing SPACE (or the on-screen "Interact" button)
-        should open a dialogue box at the bottom center of the screen.
-      - The dialogue box must display narrative text and offer branching dialogue options, with each option numbered.
-      - The dialogue advances when the player presses SPACE (or taps "Confirm"). When branching options are present,
-        the player selects an option by pressing the corresponding number key (or tapping the option on mobile).
-      - Player movement must be paused during dialogue until the conversation is complete.
-
-  3. Random Encounters & Card Battle Sequence:
-      - In the forest, when the player steps onto a "highGrass" tile (outside the town), perform a 5% probability check.
-      - If an encounter is triggered, immediately transition from the ExplorationScene to a CardBattleScene.
-      - The CardBattleScene must implement a simple, turn-based card battle system:
-          * Display both the player’s and enemy’s health bars.
-          * Provide options for the player to attack, defend, or use an item.
-          * Use animated effects to indicate attacks.
-      - After the battle concludes (win or loss), transition back to the ExplorationScene at an appropriate location.
-
-  4. Scene Management and Transitions:
-      - The game must be divided into multiple scenes:
-          * PrologueScene: A narrative-driven introduction with multi-page dialogue that explains the backstory and then transitions to the main game.
-          * ExplorationScene: The main scene where the player explores the 20x20 map, interacts with NPCs/houses, and triggers random encounters.
-          * CardBattleScene: A turn-based card battle system triggered by random encounters on highGrass tiles.
-          * (Optional) SkillTreeScene: An interface for leveling up and upgrading the character.
-      - Scene transitions must be explicit and smooth:
-          * For example, after the PrologueScene ends, transition to the ExplorationScene.
-          * When a random encounter occurs, pause the ExplorationScene and launch the CardBattleScene, then return to the ExplorationScene after the battle.
-
-  5. User Interface (UI):
-      - Main Menu: A start screen with buttons for Play, Settings, and Instructions.
-      - HUD: Display player status (e.g., HP, XP, Level) at the top-left corner.
-      - Quest Log: A panel (e.g., at the top-right) that shows active quests.
-      - Inventory Panel: A bottom panel that displays collected items.
-      - All UI elements must be styled using embedded CSS to match the game’s aesthetic and be fully responsive.
-      - On-screen instructions (or an Instructions menu) must state:
-          * Use arrow keys (or the on-screen D-pad) for movement.
-          * Press SPACE to interact/advance dialogue.
-          * Press I to view Instructions.
-          * Press M to open the Main Menu.
+  # -------------------------------
+  # = HTML & CSS Template
+  # -------------------------------
+  htmlTemplate:
+    doctype: '<!DOCTYPE html>'
+    head:
+      meta:
+        - { charset: 'utf-8' }
+        - { name: 'viewport', content: 'width=device-width, initial-scale=1.0, user-scalable=no' }
+        - { name: 'description', content: 'Resign and Reborn: A tile-based RPG adventure.' }
+      title: 'Resign and Reborn'
+      styles:
+        global: |
+          html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
+          #game-container { width: 100%; height: 100%; position: relative; }
+          .dialogue-box { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 600px; background: rgba(0,0,0,0.8); color: #fff; font-family: Arial, sans-serif; font-size: 16px; padding: 10px; border-radius: 8px; }
+          .ui-button { font-family: Arial, sans-serif; font-size: 14px; background: #333; color: #fff; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; }
+          .dpad { position: absolute; bottom: 20px; left: 20px; width: 120px; height: 120px; }
+          .action-buttons { position: absolute; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; }
   
-  6. Asset Placeholders:
-      - For any missing sprites or audio assets (e.g., for the player, houses, NPCs, highGrass, trees), include clear placeholder comments such as:
-        <!-- TODO: Add sprite for player --> or <!-- TODO: Add background music file -->
+  # -------------------------------
+  # = Phaser Configuration
+  # -------------------------------
+  phaserConfig:
+    type: Phaser.AUTO
+    width: 20 * 32      # 640px
+    height: 20 * 32     # 640px
+    parent: 'game-container'
+    physics:
+      default: 'arcade'
+      arcade:
+        gravity: { y: 0 }
+        debug: false
+    scale:
+      mode: 'FIT'
+      autoCenter: 'CENTER_BOTH'
+    scene:
+      - PreloadScene
+      - BootScene
+      - PrologueScene
+      - MainMenuScene
+      - ExplorationScene
+      - CardBattleScene
+      - SkillTreeScene
+      - GameOverScene
+  
+  # -------------------------------
+  # = Asset Preloading
+  # -------------------------------
+  preload:
+    images:
+      player: 'assets/sprites/player.png'
+      npcVillagerA: 'assets/sprites/npcA.png'
+      npcVillagerB: 'assets/sprites/npcB.png'
+      house: 'assets/tiles/house.png'
+      fence: 'assets/tiles/fence.png'
+      grass: 'assets/tiles/grass.png'
+      highGrass: 'assets/tiles/highGrass.png'
+      tree: 'assets/tiles/tree.png'
+      prologueBG: 'assets/images/prologueBG.png'
+      battleBG: 'assets/images/cardBattleBG.png'
+      titleScreen: 'assets/images/titleScreen.png'
+      gameOverScreen: 'assets/images/gameOverScreen.png'
+    tilemap:
+      key: 'worldMap'
+      json: 'assets/tilemaps/worldMap.json'
+    audio:
+      bgm:
+        mainMenu: 'assets/audio/bgm_menu.mp3'
+        exploration: 'assets/audio/bgm_exploration.mp3'
+        battle: 'assets/audio/bgm_battle.mp3'
+      sfx:
+        footstep_grass: 'assets/audio/step_grass.wav'
+        footstep_highGrass: 'assets/audio/step_highGrass.wav'
+        ui_select: 'assets/audio/ui_select.wav'
+        ui_confirm: 'assets/audio/ui_confirm.wav'
+        battle_attack: 'assets/audio/battle_attack.wav'
+        battle_defend: 'assets/audio/battle_defend.wav'
+        battle_win: 'assets/audio/battle_win.wav'
+        battle_lose: 'assets/audio/battle_lose.wav'
+        item_use: 'assets/audio/item_use.wav'
+  
+  # -------------------------------
+  # = Tilemap Layers & Collision
+  # -------------------------------
+  tilemap:
+    width: 20
+    height: 20
+    tileSize: 32
+    layers:
+      groundLayer: 'Ground'
+      objectLayer: 'Objects'
+      collisionLayer: 'Obstacles'
+    tileProperties:
+      grass: { walkable: true, spriteKey: 'grass', z: 0 }
+      highGrass: { walkable: true, spriteKey: 'highGrass', encounterRate: 0.05, z: 0 }
+      fence: { walkable: false, spriteKey: 'fence', z: 1 }
+      tree: { walkable: false, spriteKey: 'tree', z: 1 }
+      house: { walkable: false, spriteKey: 'house', z: 1 }
+  
+  # -------------------------------
+  # = Static Objects & NPCs
+  # -------------------------------
+  staticObjects:
+    houses:
+      - { id: 'house1', x: 7, y: 7 }
+      - { id: 'house2', x: 7, y: 12 }
+      - { id: 'house3', x: 12, y: 7 }
+      - { id: 'house4', x: 12, y: 12 }
+    npcs:
+      - { id: 'VillagerA', x: 8, y: 10, spriteKey: 'npcVillagerA', dialogScript: 'dialog/villagerA.json' }
+      - { id: 'VillagerB', x: 11, y: 10, spriteKey: 'npcVillagerB', dialogScript: 'dialog/villagerB.json' }
+  
+  # -------------------------------
+  # = Input Mapping
+  # -------------------------------
+  input:
+    keyboard:
+      up: [ 'W', 'UP' ]
+      down: [ 'S', 'DOWN' ]
+      left: [ 'A', 'LEFT' ]
+      right: [ 'D', 'RIGHT' ]
+      interact: [ 'SPACE', 'E' ]
+      confirm: [ 'ENTER' ]
+      menu: [ 'M' ]
+      instructions: [ 'I' ]
+    touch:
+      dpad: { x: 20, y: 500, size: 120 }
+      btnConfirm: { x: 700, y: 500, size: 60 }
+      btnInteract: { x: 780, y: 500, size: 60 }
+  
+  # -------------------------------
+  # = Camera
+  # -------------------------------
+  camera:
+    followPlayer: true
+    zoom: 2
+    bounds: { x: 0, y: 0, width: 20*32, height: 20*32 }
+  
+  # -------------------------------
+  # = Dialogue System
+  # -------------------------------
+  dialogue:
+    box:
+      width: 600
+      height: 150
+      padding: 12
+      backgroundColor: '#000'
+      alpha: 0.8
+      font: { family: 'Arial', size: 18, color: '#FFFFFF' }
+    branching:
+      enabled: true
+      selectByNumber: true
+      maxOptionsPerPage: 3
+      advanceKey: 'SPACE' / 'Confirm'
+    scriptsPath: 'assets/dialog/'
+  
+  # -------------------------------
+  # = Scenes & Flow
+  # -------------------------------
+  scenes:
+    PreloadScene:
+      purpose: 'Load all assets and show loading bar.'
+    BootScene:
+      purpose: 'Initial setup: scale, input, transition to Prologue.'
+    PrologueScene:
+      purpose: 'Multi-page intro with portrait dialogs, BG music fade-in.'
+      pages: 4
+      bgImage: 'prologueBG'
+    MainMenuScene:
+      options: [ Play, Settings, Instructions, Exit ]
+      bgImage: 'titleScreen'
+      music: 'bgm_menu'
+    ExplorationScene:
+      map: 'worldMap'
+      objects: [ houses, npcs ]
+      music: 'bgm_exploration'
+      randomEncounters: highGrass tiles
+    CardBattleScene:
+      bg: 'battleBG'
+      ui:
+        healthBars: { player: true, enemy: true }
+        actionMenu: [ Attack, Defend, Item ]
+      animations: yes
+      music: 'bgm_battle'
+    SkillTreeScene:
+      unlocked: false
+      layout: grid 3x3
+    GameOverScene:
+      bgImage: 'gameOverScreen'
+      options: [ Retry, Main Menu ]
+  
+  # -------------------------------
+  # = Player & Animations
+  # -------------------------------
+  player:
+    startPosition: { x: 10, y: 10 }
+    speed: 100          # pixels/sec
+    animations:
+      walk:
+        up:    { frames: [0,1,2,3], frameRate: 8, repeat: -1 }
+        down:  { frames: [4,5,6,7], frameRate: 8, repeat: -1 }
+        left:  { frames: [8,9,10,11], frameRate: 8, repeat: -1 }
+        right: { frames: [12,13,14,15], frameRate: 8, repeat: -1 }
+      idle:
+        up:    { frame: 0 }
+        down:  { frame: 4 }
+        left:  { frame: 8 }
+        right: { frame: 12 }
+  
+  # -------------------------------
+  # = Battle System
+  # -------------------------------
+  battleSystem:
+    health:
+      playerMax: 100
+      enemyDefault: 50
+    turnOrder: [ player, enemy ]
+    actions:
+      attack:
+        damageRange: [10,20]
+        critChance: 0.1
+        animation: 'attackAnim'
+        sfx: 'battle_attack'
+      defend:
+        blockPercent: 0.5
+        animation: 'defendAnim'
+        sfx: 'battle_defend'
+      item:
+        potion:
+          heal: 20
+          quantity: 3
+          sfx: 'item_use'
+    victory:
+      xpReward: 20
+      sfx: 'battle_win'
+    defeat:
+      sfx: 'battle_lose'
+  
+  # -------------------------------
+  # = Quests & Progression
+  # -------------------------------
+  quests:
+    tutorial:
+      id: 'questTutorial'
+      name: 'Welcome to Town'
+      description: 'Speak with both villagers to learn the basics.'
+      objectives:
+        - { type: talk, target: 'VillagerA' }
+        - { type: talk, target: 'VillagerB' }
+      rewards: { xp: 50, items: [ 'potion' ] }
+    firstBattle:
+      id: 'questBattle'
+      name: 'Forest Encounter'
+      description: 'Win your first battle in the high grass.'
+      objectives:
+        - { type: battleWin, count: 1 }
+      rewards: { xp: 100, items: [ 'potion' ] }
+  
+  # -------------------------------
+  # = Audio Details
+  # -------------------------------
+  audioDetails:
+    bgm_menu:
+      loop: true
+      volume: 0.5
+    bgm_exploration:
+      loop: true
+      volume: 0.7
+    bgm_battle:
+      loop: true
+      volume: 0.8
+    sfx:
+      footstep_grass: { volume: 0.3 }
+      footstep_highGrass: { volume: 0.4 }
+      ui_select: { volume: 0.6 }
+      battle_attack: { volume: 0.8 }
+  
+  # -------------------------------
+  # = Asset Generation Prompts
+  # -------------------------------
+  assets:
+    playerSprite: |
+      anime style, top-down, 64x64px, adventurer with tunic and brown hair, walk + idle frames.
+    npcVillagerA: |
+      Generate a 64×64 front-facing pixel-art NPC sprite of a young male villager: short chestnut hair with a subtle side part, simple facial features, wearing an olive-green tunic over an orange undershirt, dark brown knee-length breeches, and sturdy leather boots. Use crisp outlines, subtle dithering for smooth shading and volume, classic 16-bit RPG style on a transparent background.
+    npcVillagerB: |
+      Generate a 64×64 side-view pixel-art character sprite: a figure in a dark purple jacket with bright yellow sleeves, a pale blue undershirt, two-toned trousers (grey right leg, brown left leg), dark boots, and a matching purple cap with a light-blue band. Render with crisp outlines, subtle dithering for depth, and a classic 16-bit RPG style on a transparent background.  
+    houseTile: |
+      isometric 64x64px, wooden cottage, red roof, chimney, door & windows.
+    fenceTile: |
+      64x64px, dark wood fence with metal brackets, broken texture variation.
+    GroundTile: |
+      Create a 64×64 pixel-art ground tileset composed of a 4×4 grid of sixteen 16×16 square tiles, each featuring a distinct earth-tone palette—from sandy beige and warm tan to rosy pink, olive green, and slate gray—with subtle pixel dithering and soft shading to suggest soil and stone texture. Render with crisp edges and a classic 16-bit RPG aesthetic on a transparent background.
+    highGrassTile: |
+      Create a seamless 64×64 top-down pixel-art grass tile, featuring dense individual blades in a variety of vibrant green shades, with subtle highlights and soft shadows to convey depth and texture, in the style of classic 16-bit RPG terrain.
+    treeTile: |
+      Create a 64×64 pixel-art deciduous tree sprite with a slender brown trunk and a lush, rounded canopy of clustered leaves in varying shades of green. Use crisp, dithered shading to convey depth and light, with leaf highlights at the canopy edges and subtle shadowing underneath. Render in a classic 16-bit RPG style on a transparent background.
+    battleBackground: |
+      A vertical, high‐resolution digital painting of a ruined medieval battlefield at dusk: a winding dirt path littered with broken swords, round shields bearing blue heraldry, battered helmets, wooden cart wheels, and crates leads toward a crumbling castle on a misty hill. Dramatic sunset light filters through heavy clouds, casting warm golden highlights and long shadows. Wisps of smoke rise from distant fires, while overhanging ivy and twisted tree branches frame the top of the scene. Rendered in richly detailed, painterly fantasy style with a cinematic, moody atmosphere.
+    uiHPBarIcon: |
+      16×16px, red heart icon, flat design.
+    uiXPBarIcon: |
+      16×16px, blue star icon, flat design.
+  
+  # -------------------------------
+  # = Asset Details & Usage
+  # -------------------------------
+  assets:
+  playerSprite: |
+    High-detail anime-style top-down 32×32px sprite of an adventurous hero. Include:
+      - Tunic with subtle shading and folds
+      - Brown hair with two-tone highlights
+      - Distinct 4-frame walk animations (up, down, left, right)
+      - Single-frame idle pose (character stands facing down)
+      - Transparent background for easy integration
+  npcVillagerA: |
+    Generate a 64×64 front-facing pixel-art NPC sprite of a young male villager: short chestnut hair with a subtle side part, simple facial features, wearing an olive-green tunic over an orange undershirt, dark brown knee-length breeches, and sturdy leather boots. Use crisp outlines, subtle dithering for smooth shading and volume, classic 16-bit RPG style on a transparent background.
 
-  7. Game Template Adherence:
-      - The final game code must follow the provided game template structure:
-          * The HTML file must include a head section with meta tags (for responsiveness) and a title.
-          * Embedded CSS should define global and UI-specific styles.
-          * Embedded JavaScript must load Phaser.js from a CDN (e.g., https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js) and define all required scenes.
-          * Scene transitions must be clearly defined, such as switching from PrologueScene to ExplorationScene, and from ExplorationScene to CardBattleScene (when a random encounter occurs) and back.
-          * UI elements (main menu, settings, instructions, HUD, quest log, inventory) must be fully integrated and functional.
+  npcVillagerB: |
+    Generate a 64×64 side-view pixel-art character sprite: a figure in a dark purple jacket with bright yellow sleeves, a pale blue undershirt, two-toned trousers (grey right leg, brown left leg), dark boots, and a matching purple cap with a light-blue band. Render with crisp outlines, subtle dithering for depth, and a classic 16-bit RPG style on a transparent background.  
 
-  Integration and Deployment:
-  - Load Phaser.js (v3.55.2) from a CDN.
-  - Embed all HTML, CSS, and JavaScript code into one complete HTML file.
-  - The final output must be fully deployable, with all controls, UI, and scene transitions functioning as specified.
+  houseTile: |
+    Generate a 64×64 front-facing pixel-art cottage sprite: a bright yellow thatched roof composed of straw-textured triangular segments; sturdy grey stone walls reinforced by dark wooden beams; and a centered arched wooden door with simple hardware. Use clean lines, crisp shading, and a classic 16-bit RPG aesthetic.
 
-  Final Output:
-  Your final answer must be the complete HTML code (including embedded CSS and JavaScript) that builds the game exactly as described above.
-  The code must implement:
-      - A 20x20 tile-based map with a central town (enclosed by a fence, with 4 houses, 1 opening (to the forest) and 2 NPCs) and a surrounding forest
-        with "grass," "highGrass" (with a 5% random encounter chance), and "tree" tiles.
-      - Player movement using arrow keys on desktop and an on-screen D-pad on mobile, along with SPACE for interactions,
-        I for instructions, and M for the main menu.
-      - A dialogue system that advances with SPACE (or the on-screen "Confirm" button) and allows branching dialogue via numbered options.
-      - Scene transitions that switch clearly from PrologueScene to ExplorationScene, from ExplorationScene to CardBattleScene when an encounter occurs,
-        and back after the battle.
-      - Fully integrated UI elements (HUD, quest log, inventory, main menu, settings, instructions) styled with embedded CSS.
-      - Adherence to the provided game template structure.
-  """
+  fenceTile: |
+    32×32px dark wood fence segment:
+      - Metal bracket accents on planks
+      - One variation with a broken plank
+      - Simple shading for dimensionality
+  GroundTile: |
+    Create a 64×64 pixel-art ground tileset composed of a 4×4 grid of sixteen 16×16 square tiles, each featuring a distinct earth-tone palette—from sandy beige and warm tan to rosy pink, olive green, and slate gray—with subtle pixel dithering and soft shading to suggest soil and stone texture. Render with crisp edges and a classic 16-bit RPG aesthetic on a transparent background.
 
-# Detailed image-generation prompts (Ensure these are used by the image_assets_generator task)
+  highGrassTile: |
+    Create a seamless 64×64 top-down pixel-art grass tile, featuring dense individual blades in a variety of vibrant green shades, with subtle highlights and soft shadows to convey depth and texture, in the style of classic 16-bit RPG terrain.
+
+  treeTile: |
+    Create a 64×64 pixel-art deciduous tree sprite with a slender brown trunk and a lush, rounded canopy of clustered leaves in varying shades of green. Use crisp, dithered shading to convey depth and light, with leaf highlights at the canopy edges and subtle shadowing underneath. Render in a classic 16-bit RPG style on a transparent background.
+
+  battleBackground: |
+    A vertical, high‐resolution digital painting of a ruined medieval battlefield at dusk: a winding dirt path littered with broken swords, round shields bearing blue heraldry, battered helmets, wooden cart wheels, and crates leads toward a crumbling castle on a misty hill. Dramatic sunset light filters through heavy clouds, casting warm golden highlights and long shadows. Wisps of smoke rise from distant fires, while overhanging ivy and twisted tree branches frame the top of the scene. Rendered in richly detailed, painterly fantasy style with a cinematic, moody atmosphere.
+
+  uiHPBarIcon: |
+    16×16px flat-design red heart icon:
+      - Simple silhouette with slight inner highlight
+      - No stroke
+      - Transparent background
+  uiXPBarIcon: |
+    16×16px flat-design blue star icon:
+      - Five-pointed star with inner glow
+      - No stroke
+      - Transparent background
 intro_images: # Ensure this line starts at column 1
   intro1: > # Corresponds to prologueBG / images/image_0.png
-    # intro1: Desolate Office Night with a guy sittin on a desk with dark circles under his eyes and really tired
-    photorealistic, dimly lit office scene at night, cinematic lighting.
-    Focus on a single lone cubicle under harsh fluorescent lights casting long shadows.
-    A cluttered desk with overflowing papers, a stained coffee mug, keyboard and monitor.
-    FEATURE: A tired office worker (male, 30s, dark disheveled hair, white shirt, loosened tie) slumped defeatedly at his computer, face illuminated by the screen's glow.
-    ATMOSPHERE: Despair, exhaustion, corporate grind, sterile environment.
-    STYLE: Moody cool blue and grey tones, slight vignette, shallow depth of field focusing on the worker, high detail. (anime style)
+    # intro1: A high-resolution digital painting of a solitary young man with tousled black hair and pale skin, seated at a modern office desk at night. He wears a crisp white button-down shirt with rolled-up sleeves, his hands resting on a black keyboard beside a simple mouse and a steaming coffee mug. Behind him, dimly lit cubicles, scattered monitors, and vertical blinds let in a cool, bluish glow that casts soft highlights and deep shadows across the scene. Render in a moody, semi-realistic anime-inspired style with fine linework, subtle painterly textures, and cinematic lighting.  
+
   intro2: > # Prompt for a second conceptual image (e.g., ethereal transition)
-    # intro2: Ethereal Cathedral Encounter
-    a really bright light summoning the office worker from intro1 in a fantasy illustration, anime style. Interior of a vast, impossibly large cathedral with polished marble floors reflecting soaring gothic columns that disappear into shadow.
-    Volumetric light rays pierce the high windows, illuminating swirling ribbons of golden light guiding the viewer towards a luminous figure robed in white and gold standing at a distant altar.
-    ATMOSPHERE: Ethereal, dreamlike, awe-inspiring, mysterious, sacred.
-    STYLE: Soft focus on background architecture, sharp focus on the light ribbons and figure, warm gold light contrasting cool marble tones, high detail, masterpiece quality.
+    # intro2: A high-resolution digital painting in a moody, semi-realistic anime style of a tired young man with tousled black hair slumped forward on an office desk at night. His cheek presses into scattered papers, one hand still reaching toward a backlit keyboard while a steaming coffee mug sits close by. Behind him, rows of dimly lit cubicle monitors and stacked paperwork recede under cool fluorescent ceiling lights, casting soft blue highlights and deep shadows. Render with fine linework, subtle painterly textures, and a cinematic atmosphere.  
+
   intro3: > # Prompt for a third conceptual image (e.g., energy surge)
-    # intro3: Energetic Transition
-    anime style. Depict the office worker from intro1 caught in an otherworldly surge of energy.
-    His shirt and tie billow as if caught in a strong wind. Streams of incandescent white and shimmering gold energy particles swirl intensely around him, lifting him slightly off the ground.
-    BACKGROUND: A surreal blend, half fading office cubicles and half echoing cathedral arches, indicating a transition between worlds.
-    ATMOSPHERE: Energetic, chaotic, weightless, transformative, powerful.
-    STYLE: Motion blur on energy trails, dramatic contrast lighting, high detail, centered composition on the worker.
+    # intro3: Create a vertical, high-resolution fantasy anime illustration of a wide-eyed young man with tousled black hair, wearing a crisp white shirt and dark trousers, standing in awe before a towering goddess-like figure. She has flowing silver hair, a delicate golden crown of roses, and wears an ornate white and gold gown that radiates warm, ethereal light. They stand amid grand marble columns draped with sheer curtains, bathed in swirling stardust and soft golden rays. Render with fine linework, painterly textures, dramatic lighting, and a majestic, cinematic atmosphere.  
+
   intro4: > # Prompt for Exploration Scene Background / images/image_1.png (or conceptual)
-    # intro4: Divine Dialogue
-    anime style. Close-up shot focusing on the interaction.
-    The radiant Goddess figure, bathed in soft backlight creating a halo effect, wears flowing white-gold robes detailed with intricate embroidery, her hair like spun moonlight, crowned with subtle glowing blossoms, serene expression.
-    Facing her, the protagonist (office worker from intro1) gazes up, eyes wide with astonishment and awe, his mundane office attire appearing incongruous and fluttering slightly.
-    BACKGROUND: Softly blurred cathedral interior with bokeh effects.
-    ATMOSPHERE: Serene, wondrous, divine encounter, pivotal moment.
-    STYLE: Warm, soft lighting, detailed textures on robes and jewelry, sharp focus on faces and expressions, high detail, masterpiece.
+    # intro4: Generate a vertical, high-resolution fantasy anime scene: a wide-eyed young man with tousled black hair, wearing a crisp white shirt and dark trousers, stands in awe before a towering, ethereal goddess. She has long silver hair adorned with a delicate golden rose crown, and wears an ornate white and gold gown that radiates soft, warm light. They are framed by grand marble columns draped in translucent curtains, with swirling stardust and gentle golden rays filling the air. Render in fine linework and painterly textures, with dramatic, cinematic lighting and a majestic atmosphere.  
+
   intro5: > # Prompt for a fifth conceptual image (e.g., return)
-    # intro5: Awakened Reality
-    anime style with subtle fantasy elements. The office worker from intro1 jolts awake at his messy desk (same as intro1), papers scattered on the floor around his chair as if disturbed suddenly.
-    Standard fluorescent office lights overhead, blurred cubicles in the background.
-    SUBTLE HINT: A faint, residual golden glow seems to cling to the edges of the scene or the worker himself, quickly fading.
-    EXPRESSION: Focus on the worker's face showing a mix of bewilderment, lingering wonder, and newfound determination.
-    ATMOSPHERE: Abrupt return to mundane reality, lingering magic, confusion mixed with resolve.
-    STYLE: Standard office lighting, sharp focus on the worker and desk, high detail, slightly desaturated colors compared to previous scenes.
+    # intro5: Generate a vertical, high-resolution fantasy anime portrait of a young man with tousled black hair, wearing a crisp white button-up shirt with rolled sleeves and a loosened black tie that drifts in the breeze. He stands centered in a radiant doorway of warm golden light, arms slightly outstretched, eyes wide with wonder. Delicate pastel light ribbons and sparkles swirl around him, framed by tall gothic columns and a faint stained-glass window behind. Render in a moody, semi-realistic anime style with fine linework, soft painterly textures, and dramatic, cinematic lighting.  
+
   # --- NEW PROMPTS ---
   titleScreen: >
-    # titleScreen: Resign and Reborn Title
-    anime style. A split composition: Left side shows a dark, oppressive office cubicle interior (similar to intro1) dissolving or breaking apart. Right side shows a vibrant, magical fantasy landscape emerging (glowing forests, hints of adventure). Centered prominently is the game title "Resign and Reborn" in stylized, slightly weathered stone or glowing magical font.
-    ATMOSPHERE: Contrast, transformation, hope emerging from despair, epic adventure.
-    STYLE: High detail, dramatic lighting contrast between the two halves, cinematic quality.
-  cardBattleBG: > # Specific background for CardBattleScene / images/image_2.png
-    # cardBattleBG: Abstract Energy Arena
-    anime art, vibrant neon colors. A dynamic background suggesting an energetic battle arena. Streaks of glowing light (electric blue, fiery orange, emerald green) clash and intersect against a dark, nebula-like backdrop (deep purples and blacks with stars). Subtle geometric patterns or grid lines hint at a defined space. Focus on energy, motion, and contrast. Not representational, purely atmospheric for a card battle. High detail, particle effects.
+    # titleScreen: Create a vertical, high-resolution digital painting of a lone young man in modern trousers and a white shirt standing in the center of a bustling medieval marketplace. He faces a cobblestone square lined with timber-framed stalls laden with bread, pottery, and wares, surrounded by villagers in simple period attire. Beyond the market, half-timbered houses give way to a misty valley crowned by a vast stone castle with soaring spires. In the overcast sky, leathery dragon-like creatures wheel among ghostly apparitions and a pale moon. Render in richly detailed, painterly fantasy style with warm morning sunlight casting long shadows and a soft atmospheric haze.  
+
   gameOverScreen: >
     # gameOverScreen: Faded Return
     moody, anime style. Shows the player character sprite (top-down view, small in frame) lying defeated or faded/ghostly in a dark, indistinct forest setting (similar to exploration area but darker, maybe raining). Alternatively, show the character slumped back in the office chair from intro1, screen dark, with faint, dying magical wisps around them. The words "Game Over" or "Rebirth Denied" appear subtly faded into the background.

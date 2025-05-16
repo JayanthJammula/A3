@@ -8,6 +8,7 @@ game_engine_development:
     to create the game engine with smooth player controls, physics, and interactions.
   agent: main_coder
   enhanced_prompt: >
+    When executing your tasks, if you encounter any errors, first report the error details clearly, then attempt to handle the error. Continue this cycle—report and resolve—until no errors remain.
     Follow the game design instructions to produce modular, maintainable JavaScript code that integrates
     with an HTML file. Ensure Phaser.js is loaded from a CDN and that player movement is tile-based,
     with collision detection and interactive gameplay implemented. The code must also include clear scene transitions,
@@ -22,8 +23,9 @@ ui_development:
     ready to be embedded in the final HTML file.
   agent: ui_ux_designer
   enhanced_prompt: >
+    When executing your tasks, if you encounter any errors, first report the error details clearly, then attempt to handle the error. Continue this cycle—report and resolve—until no errors remain.
     Provide clean, structured, and mobile-friendly (make sure this is there) HTML/CSS code for all UI elements. Ensure the UI integrates seamlessly
-    with the Phaser game canvas. Define the HUD, main menu, settings, instructions screen, quest log, and inventory panels.
+    with the Phaser game canvas. Define the HUD, main menu, settings screen, instructions screen, quest log, and inventory panels.
     Clearly specify which buttons trigger actions (e.g., the "Play" button starts the game; the "Instructions" button opens
     the instructions screen; on mobile, an on-screen D-pad and action buttons should be provided).
 
@@ -35,6 +37,7 @@ narrative_design:
     A code snippet (HTML or JavaScript) that embeds narrative content and interactive dialogue options.
   agent: narrative_designer
   enhanced_prompt: >
+    When executing your tasks, if you encounter any errors, first report the error details clearly, then attempt to handle the error. Continue this cycle—report and resolve—until no errors remain.
     Craft compelling narrative text and dialogue options that trigger in-game events. Clearly indicate how dialogue advances:
     when the player presses SPACE (or the on-screen "Confirm" button on mobile) the dialogue should progress, and if branching
     options exist, they must be numbered so that pressing a number key or tapping the option selects it. Also, include instructions
@@ -49,6 +52,7 @@ map_design:
     highGrass, and tree tiles) and interactive areas.
   agent: map_designer
   enhanced_prompt: >
+    When executing your tasks, if you encounter any errors, first report the error details clearly, then attempt to handle the error. Continue this cycle—report and resolve—until no errors remain.
     Develop modular code to generate a 20x20 tile-based map with these specifications:
       - Town Area: Centrally located (e.g., tiles (6,6) to (13,13)) enclosed by a fence (non-walkable). Inside, place 4 houses
         (e.g., at positions (7,7), (7,12), (12,7), (12,12)) and 2 NPCs (e.g., at (8,10) and (11,10)) that trigger dialogue.
@@ -64,6 +68,7 @@ npc_ai_development:
     A JavaScript code snippet that implements basic NPC and enemy AI using Phaser.js, with smooth movement and interactive responses.
   agent: npc_ai_designer
   enhanced_prompt: >
+    When executing your tasks, if you encounter any errors, first report the error details clearly, then attempt to handle the error. Continue this cycle—report and resolve—until no errors remain.
     Create robust and responsive AI code for NPCs and enemies. NPCs should move randomly and trigger dialogue when interacted with.
     Enemies should be programmed to track or attack the player when in range. Ensure that AI behaviors trigger appropriate scene transitions,
     such as moving into a dialogue mode or starting a card battle encounter.
@@ -76,6 +81,7 @@ inventory_and_quest_system:
     A code snippet (HTML and JavaScript) that creates an interactive quest log and inventory system, integrated with the overall game UI.
   agent: inventory_quest_designer
   enhanced_prompt: >
+    When executing your tasks, if you encounter any errors, first report the error details clearly, then attempt to handle the error. Continue this cycle—report and resolve—until no errors remain.
     Build an intuitive and interactive quest and inventory system that integrates with the game’s UI. Ensure that when the player collects
     an item or accepts a quest, the corresponding UI element (e.g., the inventory panel or quest log) updates accordingly. Also, specify how
     these interactions might trigger transitions (e.g., starting dialogue or a battle).
@@ -84,14 +90,14 @@ game_deployment:
   description: >
     Make sure the game is in the center of the screen. Integrate all developed game components (PrologueScene, ExplorationScene, CardBattleScene, SkillTreeScene,
     quest system, inventory system, etc.) into one fully deployable HTML5 file. The file must include all UI elements,
-    scene transitions, embedded CSS, and JavaScript using Phaser.js. Use this template {game_template} and strictly adhere to it. 
+    scene transitions, embedded CSS, and JavaScript using Phaser.js. Use this template {game_template} and strictly adhere to it.
   expected_output: >
     Your Final Answer must be the complete HTML code (including embedded CSS and JavaScript) that replicates the structure
     of the provided reference code, with all scenes (and clear transitions between them), UI elements, and game systems fully integrated.
   agent: template_integrator
   output_file: index.html
   enhanced_prompt: >
-  
+    When executing your tasks, if you encounter any errors, first report the error details clearly, then attempt to handle the error. Continue this cycle—report and resolve—until no errors remain.
     Follow the reference code structure exactly. Make sure the game is in the center of the screen.  Your final integrated HTML file must include:
       - PrologueScene: A multi-page narrative that introduces the game and transitions to the main exploration.
       - ExplorationScene: A 20x20 tile-based map featuring:
@@ -114,27 +120,46 @@ testing_and_quality_assurance:
     A JavaScript snippet containing debugging code, error handling routines, or test cases that verify the functionality of the final game.
   agent: tester_debugger
   enhanced_prompt: >
+    When executing your tasks, if you encounter any errors, first report the error details clearly, then attempt to handle the error. Continue this cycle—report and resolve—until no errors remain.
     Provide clear and actionable debugging code or test cases to verify that all components of the final HTML file work as intended.
     Review the code for syntax, logic errors, and performance issues. Ensure that scene transitions, dialogue progression,
     UI updates, and control inputs (arrow keys, on-screen D-pad, SPACE, I, and M) function properly, and include fixes or suggestions where necessary. Also make sure the play, menu, instructions and restart work. Check for mobile controls.
 
-
 generate_visual_assets:
   description: >
-    Generate the 9 images using the prompts defined under `intro_images` in the game design document ({game[intro_images]}). Use the comfyui tool.
+    Generate every image asset defined in the game design YAML (both the `intro_images` and
+    the `assets` sections of {game}) by invoking the configured `comfyui` tool.
   expected_output: >
-    A JSON string summarizing the results of the image generation attempts. This JSON should detail the success or failure
-    for each requested image and provide the file path for successfully generated images, suitable for use by the asset integrator.
-    Example success format: {"success": true, "results": [{"index": 0, "status": "success", "path": "images/image_0.png", "prompt": "..."}, ...]}
-    Example failure format: {"success": false, "results": [{"index": 0, "status": "error", "error": "...", "prompt": "..."}, ...]}
+    A single JSON string summarizing the outcome for each image asset. For successes, each entry
+    should include its index, status “success”, the file path where the image was saved, and the
+    prompt used. For failures, each entry should include its index, status “error”, an error
+    message, and the prompt.
+    Example success entry:
+      {"index": 0, "status": "success", "path": "images/intro1.png", "prompt": "..."}
+    Example error entry:
+      {"index": 5, "status": "error",   "error": "timeout", "prompt": "..."}
   agent: image_assets_generator
-  # This task-level prompt provides context TO the agent before it starts.
-  # It should guide the agent on WHAT to do for this task, leveraging its core programming (from agents.yaml).
   enhanced_prompt: >
-    Your task is to generate the set of introductory images as defined in the 'intro_images' section of the game design document ({game[intro_images]}).
-    You must use your configured 'comfyui' tool to generate these images based on their respective prompts.
-    Ensure you follow the instructions from your core programming (in agents.yaml) on how to format the input for the 'comfyui' tool (providing a list of all required prompts in one call).
-    The tool will return a JSON string summarizing the outcome for each image. Your final output for this task must be exactly that JSON string.
+    Your job is to read the game design document at `config/gamedesign.yaml`, discover all
+    the keys under the `intro_images` section (e.g. intro1, intro2, …, intro5, titleScreen,
+    cardBattleBG, gameOverScreen), and all the keys under the `assets` section
+    (playerSprite, npcVillagerA, npcVillagerB, houseTile, fenceTile, grassTile, highGrassTile,
+    treeTile, battleBackground, uiHPBarIcon, uiXPBarIcon). For **each** entry:
+
+      1. Extract the exact text prompt defined in the YAML.
+      2. Determine its output size:
+         - If the key is a tile or UI icon, use its defined dimensions from the YAML.
+         - Otherwise, default to 800×600.
+      3. Build an object with:
+         - **prompt**: the extracted text
+         - **size**: the determined dimensions
+         - **output_path**: `"images/<key>.png"` (e.g. `images/intro1.png`)
+
+    Once you have the array of all these prompt objects, call the `comfyui` tool **once**,
+    passing the full array. If you encounter any errors, report the error details clearly,
+    handle them, and retry until all assets succeed or definitively fail. Finally, return
+    exactly the JSON string that `comfyui` produces—no additional wrapping or commentary.
+
 
 generate_audio_assets:
   description: >
@@ -144,6 +169,7 @@ generate_audio_assets:
     MP3 or WAV files in sounds/ named by asset type, with license info.
   agent: audio_assets_generator
   enhanced_prompt: >
+    When executing your tasks, if you encounter any errors, first report the error details clearly, then attempt to handle the error. Continue this cycle—report and resolve—until no errors remain.
     Find/acquire each required audio asset, save to sounds/{asset_type}.mp3 (or .wav),
     and produce a CSV or JSON manifest mapping files to their sources and licenses.
 
@@ -154,6 +180,7 @@ integrate_assets:
     Updated index.html (or template) and Phaser preload code that loads images/ and sounds/.
   agent: asset_integrator
   enhanced_prompt: >
+    When executing your tasks, if you encounter any errors, first report the error details clearly, then attempt to handle the error. Continue this cycle—report and resolve—until no errors remain.
     Modify the template to include <link> or <script> tags for assets, update Phaser
     this.load.image() and this.load.audio(), and add CSS media queries so images
     adapt to mobile screen sizes. Ensure audio is preloaded and playable via Phaser.
