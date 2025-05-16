@@ -6,7 +6,7 @@
 
 ## Overview
 
-Set on a 20x20 tile-based map, **Resign and Reborn** transports you into a richly detailed world featuring:
+Set on a 60x60 tile-based map, **Resign and Reborn** transports you into a richly detailed world featuring:
 
 - **A Central Town:**  
   A charming town enclosed by a fence that hosts four houses and two interactive NPCs.
